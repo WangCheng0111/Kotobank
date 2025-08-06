@@ -1,0 +1,14 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- 图标字体 -->
+    <FontFamily x:Key="SegoeFluentIcons">avares://riyu/Fonts/Segoe Fluent Icons.ttf#Segoe Fluent Icons</FontFamily>
+    
+    <!-- HarmonyOS字体 -->
+    <FontFamily x:Key="HarmonyOSRegular">avares://riyu/Fonts/HarmonyOS_SansSC_Regular.ttf#HarmonyOS Sans SC</FontFamily>
+    <FontFamily x:Key="HarmonyOSBold">avares://riyu/Fonts/HarmonyOS_SansSC_Bold.ttf#HarmonyOS Sans SC</FontFamily>
+    <FontFamily x:Key="HarmonyOSLight">avares://riyu/Fonts/HarmonyOS_SansSC_Light.ttf#HarmonyOS Sans SC</FontFamily>
+    <FontFamily x:Key="HarmonyOSMedium">avares://riyu/Fonts/HarmonyOS_SansSC_Medium.ttf#HarmonyOS Sans SC</FontFamily>
+    <FontFamily x:Key="HarmonyOSThin">avares://riyu/Fonts/HarmonyOS_SansSC_Thin.ttf#HarmonyOS Sans SC</FontFamily>
+    <FontFamily x:Key="HarmonyOSBlack">avares://riyu/Fonts/HarmonyOS_SansSC_Black.ttf#HarmonyOS Sans SC</FontFamily>
+
+</ResourceDictionary>

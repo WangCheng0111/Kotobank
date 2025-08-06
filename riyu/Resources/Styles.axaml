@@ -1,0 +1,131 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <!-- 窗口控制按钮样式 -->
+    
+    <!-- 窗口控制按钮基础样式 - 使用自定义控件模板完全控制 -->
+    <Style Selector="Button.custom-window-button">
+        <Setter Property="RenderTransform">
+            <ScaleTransform ScaleX="1.0" ScaleY="1.0"/>
+        </Setter>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border x:Name="PART_Border"
+                        Background="Transparent"
+                        BorderThickness="0">
+                    <Border.Transitions>
+                        <Transitions>
+                            <BrushTransition Property="Background" Duration="0:0:0.2"/>
+                        </Transitions>
+                    </Border.Transitions>
+                    <ContentPresenter Content="{TemplateBinding Content}"
+                                     HorizontalContentAlignment="Center"
+                                     VerticalContentAlignment="Center"/>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    
+    <!-- 禁用按下状态的缩放效果 -->
+    <Style Selector="Button.custom-window-button:pressed">
+        <Setter Property="RenderTransform">
+            <ScaleTransform ScaleX="1.0" ScaleY="1.0"/>
+        </Setter>
+    </Style>
+    
+    <!-- 最小化按钮样式 -->
+    <Style Selector="Button.custom-window-button.minimize-button:pointerover /template/ Border#PART_Border">
+        <Setter Property="Background" Value="#d9dde2"/>
+    </Style>
+    <Style Selector="Button.custom-window-button.minimize-button:pressed:pointerover /template/ Border#PART_Border">
+        <Setter Property="Background" Value="#c2c5ca"/>
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background" Duration="0:0:0"/>
+            </Transitions>
+        </Setter>
+    </Style>
+    <Style Selector="Button.custom-window-button.minimize-button:pressed:not(:pointerover) /template/ Border#PART_Border">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background" Duration="0:0:0"/>
+            </Transitions>
+        </Setter>
+    </Style>
+    
+    <!-- 最大化按钮样式 -->
+    <Style Selector="Button.custom-window-button.maximize-button:pointerover /template/ Border#PART_Border">
+        <Setter Property="Background" Value="#d9dde2"/>
+    </Style>
+    <Style Selector="Button.custom-window-button.maximize-button:pressed:pointerover /template/ Border#PART_Border">
+        <Setter Property="Background" Value="#c2c5ca"/>
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background" Duration="0:0:0"/>
+            </Transitions>
+        </Setter>
+    </Style>
+    <Style Selector="Button.custom-window-button.maximize-button:pressed:not(:pointerover) /template/ Border#PART_Border">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background" Duration="0:0:0"/>
+            </Transitions>
+        </Setter>
+    </Style>
+    
+    <!-- 关闭按钮样式 -->
+    <Style Selector="Button.custom-window-button.close-button:pointerover /template/ Border#PART_Border">
+        <Setter Property="Background" Value="#e81123"/>
+    </Style>
+    <Style Selector="Button.custom-window-button.close-button:pressed:pointerover /template/ Border#PART_Border">
+        <Setter Property="Background" Value="#ec6d7a"/>
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background" Duration="0:0:0"/>
+            </Transitions>
+        </Setter>
+    </Style>
+    <Style Selector="Button.custom-window-button.close-button:pressed:not(:pointerover) /template/ Border#PART_Border">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background" Duration="0:0:0"/>
+            </Transitions>
+        </Setter>
+    </Style>
+    
+    <!-- 关闭按钮文字样式 -->
+    <Style Selector="TextBlock.close-button-text">
+        <Setter Property="Foreground" Value="#2d2d2d"/>
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Foreground" Duration="0:0:0.2"/>
+            </Transitions>
+        </Setter>
+    </Style>
+    
+    <Style Selector="Button.custom-window-button.close-button:pointerover TextBlock.close-button-text">
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+    
+    <Style Selector="Button.custom-window-button.close-button:pressed:pointerover TextBlock.close-button-text">
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Foreground" Duration="0:0:0"/>
+            </Transitions>
+        </Setter>
+    </Style>
+    
+    <Style Selector="Button.custom-window-button.close-button:pressed:not(:pointerover) TextBlock.close-button-text">
+        <Setter Property="Foreground" Value="#2d2d2d"/>
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Foreground" Duration="0:0:0"/>
+            </Transitions>
+        </Setter>
+    </Style>
+    
+</Styles>
