@@ -1,0 +1,44 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:riyu.ViewModels"
+             xmlns:views="clr-namespace:riyu.Views"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="riyu.Views.AndroidMainView"
+             x:DataType="vm:MainViewModel">
+
+  <Grid>
+    <!-- 主内容 -->
+    <views:MainView />
+    
+    <!-- 导入进度遮罩层和对话框 - Android端专用 -->
+    <Grid Background="#80000000"
+          ZIndex="1000"
+          IsVisible="{Binding IsImportDialogVisible}"
+          Opacity="{Binding OverlayOpacity}">
+      
+      <!-- 遮罩淡入动画支持 -->
+      <Grid.Transitions>
+        <Transitions>
+          <DoubleTransition Property="Opacity" 
+                           Duration="0:0:0.5" 
+                           Easing="CubicEaseOut"/>
+        </Transitions>
+      </Grid.Transitions>
+      
+
+      
+      <!-- 导入进度对话框 -->
+      <Grid HorizontalAlignment="Center"
+            VerticalAlignment="Center">
+        
+
+        
+        <!-- 使用Android专用的小尺寸对话框组件 -->
+        <views:ImportProgressDialogAndroid />
+      </Grid>
+    </Grid>
+  </Grid>
+
+</UserControl>

@@ -98,5 +98,35 @@
         <Grid Grid.Row="1">
             <views:MainView />
         </Grid>
+        
+        <!-- 导入进度遮罩层和对话框 - 覆盖整个窗口 -->
+        <Grid Grid.Row="0" Grid.RowSpan="2"
+              Background="#80000000"
+              ZIndex="1000"
+              x:DataType="vm:MainViewModel"
+              IsVisible="{Binding IsImportDialogVisible}"
+              Opacity="{Binding OverlayOpacity}">
+          
+          <!-- 遮罩淡入动画支持 -->
+          <Grid.Transitions>
+            <Transitions>
+              <DoubleTransition Property="Opacity" 
+                               Duration="0:0:0.5" 
+                               Easing="CubicEaseOut"/>
+            </Transitions>
+          </Grid.Transitions>
+          
+
+          
+          <!-- 导入进度对话框 -->
+          <Grid HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+            
+
+            
+            <!-- 使用独立的对话框组件 -->
+            <views:ImportProgressDialog />
+          </Grid>
+        </Grid>
     </Grid>
 </Window>

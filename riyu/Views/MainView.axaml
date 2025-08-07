@@ -14,5 +14,92 @@
     <vm:MainViewModel />
   </Design.DataContext>
 
+  <Grid>
+    <!-- 主要内容 -->
+    <StackPanel Spacing="30" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center">
+        <!-- 标题 -->
+        <TextBlock Text="日语单词学习工具" 
+                   FontSize="24" 
+                   FontWeight="Bold" 
+                   HorizontalAlignment="Center"
+                   Foreground="#2d2d2d"
+                   FontFamily="{DynamicResource HarmonyOSBold}"/>
+        
+        <!-- 导入Excel按钮 -->
+        <Button Content="导入Excel文件"
+                Command="{Binding SelectExcelFileCommand}"
+                HorizontalAlignment="Center"
+                Background="#007ACC"
+                Foreground="White"
+                FontSize="14"
+                FontWeight="Medium"
+                Padding="20,12"
+                CornerRadius="8"
+                FontFamily="{DynamicResource HarmonyOSMedium}">
+          <Button.Styles>
+            <Style Selector="Button:pointerover">
+              <Setter Property="Background" Value="#005A9E"/>
+            </Style>
+            <Style Selector="Button:pressed">
+              <Setter Property="Background" Value="#004080"/>
+            </Style>
+          </Button.Styles>
+        </Button>
+        
+
+        <!-- 日语单词输入框 -->
+        <StackPanel Spacing="8">
+          <TextBlock Text="输入日语单词："
+                     FontSize="14"
+                     FontWeight="Medium"
+                     Foreground="#2d2d2d"
+                     FontFamily="{DynamicResource HarmonyOSMedium}"/>
+          
+          <TextBox Text="{Binding JapaneseInput}"
+                   Watermark="例：こんにちは"
+                   FontSize="16"
+                   Padding="12,10"
+                   CornerRadius="8"
+                   Background="#f8f9fa"
+                   BorderBrush="#e1e5e9"
+                   BorderThickness="1"
+                   FontFamily="{DynamicResource HarmonyOSRegular}">
+            <TextBox.Styles>
+              <Style Selector="TextBox:focus">
+                <Setter Property="BorderBrush" Value="#007ACC"/>
+              </Style>
+            </TextBox.Styles>
+          </TextBox>
+        </StackPanel>
+        
+        <!-- 中文释义显示框 -->
+        <StackPanel Spacing="8">
+          <TextBlock Text="中文释义："
+                     FontSize="14"
+                     FontWeight="Medium"
+                     Foreground="#2d2d2d"
+                     FontFamily="{DynamicResource HarmonyOSMedium}"/>
+          
+          <Border Background="#f8f9fa"
+                  CornerRadius="8"
+                  BorderBrush="#e1e5e9"
+                  BorderThickness="1"
+                  MinHeight="80"
+                  Padding="12,10">
+            <TextBlock Text="{Binding ChineseTranslation}"
+                       FontSize="16"
+                       TextWrapping="Wrap"
+                       VerticalAlignment="Top"
+                       Foreground="#2d2d2d"
+                       FontFamily="{DynamicResource HarmonyOSRegular}"/>
+          </Border>
+        </StackPanel>
+        
+    </StackPanel>
+
+
+  </Grid>
 
 </UserControl>

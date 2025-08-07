@@ -1,6 +1,7 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="using:riyu"
+             xmlns:converters="using:riyu.Converters"
              x:Class="riyu.App"
              RequestedThemeVariant="Default">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
@@ -16,6 +17,7 @@
 
     <Application.Resources>
         <ResourceDictionary>
+            <converters:MarginConverter x:Key="MarginConverter"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceInclude Source="/Resources/Colors.axaml"/>
                 <ResourceInclude Source="/Resources/Icons.axaml"/>
