@@ -1,4 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
+<!--  启动页的背景色为深色的话，顶部栏和导航栏自动会变dark主题-->
   <color name="splash_background">#FFFFFF</color>
 </resources>
