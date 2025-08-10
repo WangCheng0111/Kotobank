@@ -7,12 +7,12 @@
              x:DataType="vm:MainViewModel"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="200">
 
-  <!-- 导入进度对话框内容 - 桌面端尺寸 -->
+  <!-- 导入进度对话框内容 - 使用OnPlatform自动适配尺寸 -->
   <Border Background="White"
           CornerRadius="12"
           BoxShadow="0 8 32 0 #40000000"
-          Width="400"
-          Height="200"
+          Width="{OnPlatform Default=400, Android=300}"
+          Height="{OnPlatform Default=200, Android=180}"
           Margin="{Binding DialogTranslateY, Converter={StaticResource MarginConverter}}"
           Opacity="{Binding DialogOpacity}">
     
@@ -28,8 +28,8 @@
       </Transitions>
     </Border.Transitions>
     
-    <StackPanel Spacing="20" 
-                Margin="30"
+    <StackPanel Spacing="{OnPlatform Default=20, Android=16}" 
+                Margin="{OnPlatform Default=30, Android=24}"
                 VerticalAlignment="Center">
       
       <!-- 标题 -->
@@ -58,7 +58,7 @@
         
         <!-- 状态文本 -->
         <TextBlock Text="{Binding ImportStatus}"
-                   FontSize="14"
+                   FontSize="{OnPlatform Default=14, Android=12}"
                    HorizontalAlignment="Center"
                    Foreground="#666666"
                    TextWrapping="Wrap"

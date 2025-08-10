@@ -6,19 +6,19 @@
              xmlns:views="clr-namespace:riyu.Views"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="riyu.Views.AndroidMainView"
-             x:DataType="vm:MainViewModel">
+             x:DataType="vm:MainViewModel"
+             TopLevel.AutoSafeAreaPadding="False">
 
   <Grid>
-    <!-- 主内容 -->
+    <!-- Android端主界面 -->
     <views:MainView />
     
-    <!-- 导入进度遮罩层和对话框 - Android端专用 -->
+    <!-- 导入进度遮罩层和对话框 -->
     <Grid Background="#80000000"
           ZIndex="1000"
           IsVisible="{Binding IsImportDialogVisible}"
           Opacity="{Binding OverlayOpacity}">
       
-      <!-- 遮罩淡入动画支持 -->
       <Grid.Transitions>
         <Transitions>
           <DoubleTransition Property="Opacity" 
@@ -27,16 +27,29 @@
         </Transitions>
       </Grid.Transitions>
       
-
-      
-      <!-- 导入进度对话框 -->
       <Grid HorizontalAlignment="Center"
             VerticalAlignment="Center">
-        
-
-        
-        <!-- 使用Android专用的小尺寸对话框组件 -->
-        <views:ImportProgressDialogAndroid />
+        <views:ImportProgressDialog />
+      </Grid>
+    </Grid>
+    
+    <!-- 单词表遮罩层和对话框 -->
+    <Grid Background="#80000000"
+          ZIndex="1001"
+          IsVisible="{Binding IsWordListDialogVisible}"
+          Opacity="{Binding WordListOverlayOpacity}">
+      
+      <Grid.Transitions>
+        <Transitions>
+          <DoubleTransition Property="Opacity" 
+                           Duration="0:0:0.5" 
+                           Easing="CubicEaseOut"/>
+        </Transitions>
+      </Grid.Transitions>
+      
+      <Grid HorizontalAlignment="Center"
+            VerticalAlignment="Center">
+        <views:WordListDialog />
       </Grid>
     </Grid>
   </Grid>

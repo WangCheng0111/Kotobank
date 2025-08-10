@@ -20,8 +20,9 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty] private bool _isProcessing = false;
     
     // UI元素的属性
-    [ObservableProperty] private string _chineseTranslation = "这里将显示中文释义";
+    [ObservableProperty] private string _chineseTranslation = "见面";
     [ObservableProperty] private string _japaneseInput = string.Empty;
+    [ObservableProperty] private string _wordType = "及物动词";
     
     // 导入进度对话框控制
     [ObservableProperty] private bool _isImportDialogVisible = false;
@@ -30,6 +31,12 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty] private double _dialogTranslateY = 200.0; // 对话框Y轴偏移，用于滑动动画
     [ObservableProperty] private double _dialogOpacity = 0.0; // 对话框不透明度，用于淡入动画
     [ObservableProperty] private double _overlayOpacity = 0.0; // 遮罩不透明度，用于淡入动画
+    
+    // 单词表对话框控制
+    [ObservableProperty] private bool _isWordListDialogVisible = false;
+    [ObservableProperty] private double _wordListDialogTranslateY = 200.0; // 单词表对话框Y轴偏移，用于滑动动画
+    [ObservableProperty] private double _wordListDialogOpacity = 0.0; // 单词表对话框不透明度，用于淡入动画
+    [ObservableProperty] private double _wordListOverlayOpacity = 0.0; // 单词表遮罩不透明度，用于淡入动画
     
     private readonly ExcelService _excelService;
     private readonly DatabaseService _databaseService;
@@ -179,10 +186,11 @@ public partial class MainViewModel : ViewModelBase
                     _importedWords.AddRange(sheetData.Words);
                 }
                 
-                // 显示第一个单词的中文释义（如果有的话）
+                // 显示第一个单词的中文释义和词性（如果有的话）
                 if (_importedWords.Count > 0)
                 {
                     await UpdateChineseTranslationAsync(_importedWords[0].Chinese);
+                    await UpdateWordTypeAsync(_importedWords[0].PartOfSpeech);
                 }
                 
                 // 设置进度到100%
@@ -216,6 +224,15 @@ public partial class MainViewModel : ViewModelBase
         await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
         {
             ChineseTranslation = translation;
+        });
+    }
+    
+    private async Task UpdateWordTypeAsync(string wordType)
+    {
+        // 确保在UI线程上更新UI属性
+        await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            WordType = string.IsNullOrEmpty(wordType) ? "未知" : wordType;
         });
     }
     
@@ -260,6 +277,58 @@ public partial class MainViewModel : ViewModelBase
             DialogTranslateY = 200.0;  // 重置为入场动画的初始位置
             DialogOpacity = 0.0;       // 重置为入场动画的初始透明度
             OverlayOpacity = 0.0;      // 重置为入场动画的初始透明度
+        });
+    }
+    
+    [RelayCommand]
+    private async Task ShowWordListDialog()
+    {
+        // 设置初始动画状态
+        await Dispatcher.UIThread.InvokeAsync(() => 
+        {
+            WordListDialogTranslateY = 200.0; // 从下方滑入
+            WordListDialogOpacity = 0.0;
+            WordListOverlayOpacity = 0.0;
+            
+            // 显示单词表对话框
+            IsWordListDialogVisible = true;
+        });
+        
+        // 启动滑动和淡入动画
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(50); // 短暂延迟确保对话框已渲染
+            await Dispatcher.UIThread.InvokeAsync(() => 
+            {
+                WordListDialogTranslateY = 0.0;
+                WordListDialogOpacity = 1.0;
+                WordListOverlayOpacity = 1.0;
+            });
+        });
+    }
+    
+    [RelayCommand]
+    private async Task HideWordListDialog()
+    {
+        // 现代风离场动画：先执行动画，再隐藏对话框
+        await Dispatcher.UIThread.InvokeAsync(() => 
+        {
+            // 开始离场动画：对话框向下滑动并淡出，遮罩淡出
+            WordListDialogTranslateY = -200.0;  // 向下滑动到屏幕外（负值表示向下滑出）
+            WordListDialogOpacity = 0.0;       // 对话框淡出
+            WordListOverlayOpacity = 0.0;      // 遮罩淡出
+        });
+        
+        // 等待动画完成（与不透明度动画时间一致）
+        await Task.Delay(500); // 等待不透明度动画完成（0.5秒）
+        
+        // 动画完成后隐藏对话框并重置状态
+        await Dispatcher.UIThread.InvokeAsync(() => 
+        {
+            IsWordListDialogVisible = false;
+            WordListDialogTranslateY = 200.0;  // 重置为入场动画的初始位置
+            WordListDialogOpacity = 0.0;       // 重置为入场动画的初始透明度
+            WordListOverlayOpacity = 0.0;      // 重置为入场动画的初始透明度
         });
     }
 

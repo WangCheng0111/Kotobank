@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:riyu.ViewModels"
+             xmlns:views="clr-namespace:riyu.Views"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="riyu.Views.MainView"
              x:DataType="vm:MainViewModel"
@@ -16,88 +17,78 @@
 
   <Grid>
     <!-- 主要内容 -->
-    <StackPanel Spacing="30" 
+    <StackPanel Spacing="40" 
                 HorizontalAlignment="Center" 
                 VerticalAlignment="Center">
-        <!-- 标题 -->
-        <TextBlock Text="日语单词学习工具" 
-                   FontSize="24" 
-                   FontWeight="Bold" 
-                   HorizontalAlignment="Center"
-                   Foreground="#2d2d2d"
-                   FontFamily="{DynamicResource HarmonyOSBold}"/>
-        
-        <!-- 导入Excel按钮 -->
-        <Button Content="导入Excel文件"
-                Command="{Binding SelectExcelFileCommand}"
-                HorizontalAlignment="Center"
-                Background="#007ACC"
-                Foreground="White"
-                FontSize="14"
-                FontWeight="Medium"
-                Padding="20,12"
-                CornerRadius="8"
-                FontFamily="{DynamicResource HarmonyOSMedium}">
-          <Button.Styles>
-            <Style Selector="Button:pointerover">
-              <Setter Property="Background" Value="#005A9E"/>
-            </Style>
-            <Style Selector="Button:pressed">
-              <Setter Property="Background" Value="#004080"/>
-            </Style>
-          </Button.Styles>
-        </Button>
         
 
-        <!-- 日语单词输入框 -->
-        <StackPanel Spacing="8">
-          <TextBlock Text="输入日语单词："
-                     FontSize="14"
-                     FontWeight="Medium"
-                     Foreground="#2d2d2d"
-                     FontFamily="{DynamicResource HarmonyOSMedium}"/>
+        
+        <!-- 中间内容区域 -->
+        <StackPanel Spacing="16" 
+                    HorizontalAlignment="Center">
           
+          <!-- 中文释义和词性 -->
+          <StackPanel Orientation="Horizontal" 
+                      HorizontalAlignment="Center" 
+                      Spacing="12" 
+                      VerticalAlignment="Center"
+                      Margin="0,-150,0,0">
+            
+            <!-- 中文释义文本框 -->
+            <TextBlock Text="{Binding ChineseTranslation}"
+                       FontSize="32"
+                       FontWeight="Bold"
+                       Foreground="#2d2d2d"
+                       FontFamily="{DynamicResource HarmonyOSBold}"
+                       VerticalAlignment="Center"/>
+            
+            <!-- 词性标签 -->
+            <Border Background="#f0f0f0"
+                    CornerRadius="6"
+                    Padding="8,4"
+                    VerticalAlignment="Center">
+              <TextBlock Text="{Binding WordType}"
+                         FontSize="12"
+                         FontWeight="Medium"
+                         Foreground="#666666"
+                         FontFamily="{DynamicResource HarmonyOSMedium}"/>
+            </Border>
+          </StackPanel>
+          
+          <!-- 确定按钮 -->
+          <Button Classes="confirm-button"
+                  HorizontalAlignment="Center"
+                  FontFamily="{DynamicResource HarmonyOSMedium}"
+                  Margin="0,-70,0,0"/>
+          
+          <!-- 输入框 -->
           <TextBox Text="{Binding JapaneseInput}"
-                   Watermark="例：こんにちは"
-                   FontSize="16"
-                   Padding="12,10"
-                   CornerRadius="8"
-                   Background="#f8f9fa"
-                   BorderBrush="#e1e5e9"
-                   BorderThickness="1"
-                   FontFamily="{DynamicResource HarmonyOSRegular}">
-            <TextBox.Styles>
-              <Style Selector="TextBox:focus">
-                <Setter Property="BorderBrush" Value="#007ACC"/>
-              </Style>
-            </TextBox.Styles>
-          </TextBox>
+                   Watermark="输入日语单词..."
+                   Classes="underlineTextBox"
+                   Width="{OnPlatform Default=400, Android=300}"
+                   HorizontalAlignment="Center"
+                   FontFamily="{DynamicResource HarmonyOSRegular}"/>
+          
         </StackPanel>
         
-        <!-- 中文释义显示框 -->
-        <StackPanel Spacing="8">
-          <TextBlock Text="中文释义："
-                     FontSize="14"
-                     FontWeight="Medium"
-                     Foreground="#2d2d2d"
-                     FontFamily="{DynamicResource HarmonyOSMedium}"/>
-          
-          <Border Background="#f8f9fa"
-                  CornerRadius="8"
-                  BorderBrush="#e1e5e9"
-                  BorderThickness="1"
-                  MinHeight="80"
-                  Padding="12,10">
-            <TextBlock Text="{Binding ChineseTranslation}"
-                       FontSize="16"
-                       TextWrapping="Wrap"
-                       VerticalAlignment="Top"
-                       Foreground="#2d2d2d"
-                       FontFamily="{DynamicResource HarmonyOSRegular}"/>
-          </Border>
-        </StackPanel>
+        <!-- 导入Excel按钮（暂时保留，后续可以移到设置中） -->
+        <Button Content="导入Excel文件"
+                Command="{Binding SelectExcelFileCommand}"
+                Classes="import-button"
+                HorizontalAlignment="Center"
+                FontFamily="{DynamicResource HarmonyOSMedium}"/>
         
     </StackPanel>
+
+    <!-- 右下角单词表按钮 -->
+    <Button Content="单词表"
+            Classes="word-list-button"
+            Command="{Binding ShowWordListDialogCommand}"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom"
+            Margin="{OnPlatform Default='0,0,20,20', Android='0,0,20,40'}"
+            FontFamily="{DynamicResource HarmonyOSBold}"/>
+
 
 
   </Grid>

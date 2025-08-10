@@ -1,0 +1,77 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:riyu.ViewModels"
+             x:Class="riyu.Views.WordListDialog"
+             x:DataType="vm:MainViewModel"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="600">
+
+  <!-- 单词表列表对话框内容 -->
+  <Border Background="White"
+          CornerRadius="12"
+          BoxShadow="0 8 32 0 #40000000"
+          Width="{OnPlatform Default=400, Android=320}"
+          Height="{OnPlatform Default=600, Android=480}"
+          Margin="{Binding WordListDialogTranslateY, Converter={StaticResource MarginConverter}}"
+          Opacity="{Binding WordListDialogOpacity}">
+    
+    <!-- 滑动和淡入动画支持 -->
+    <Border.Transitions>
+      <Transitions>
+        <ThicknessTransition Property="Margin" 
+                           Duration="0:0:0.6" 
+                           Easing="QuinticEaseOut"/>
+        <DoubleTransition Property="Opacity" 
+                         Duration="0:0:0.5" 
+                         Easing="CubicEaseOut"/>
+      </Transitions>
+    </Border.Transitions>
+    
+    <Grid>
+      <!-- 标题栏 -->
+      <Border Background="#f8f9fa"
+              CornerRadius="12,12,0,0"
+              Height="{OnPlatform Default=60, Android=50}"
+              VerticalAlignment="Top">
+        <Grid Margin="{OnPlatform Default='20,0', Android='16,0'}">
+          <TextBlock Text="单词表"
+                     FontSize="{OnPlatform Default=18, Android=16}"
+                     FontWeight="Bold"
+                     VerticalAlignment="Center"
+                     Foreground="#2d2d2d"
+                     FontFamily="{DynamicResource HarmonyOSBold}"/>
+          
+          <!-- 关闭按钮 -->
+          <Button Content="✕"
+                  Command="{Binding HideWordListDialogCommand}"
+                  HorizontalAlignment="Right"
+                  VerticalAlignment="Center"
+                  Background="Transparent"
+                  BorderThickness="0"
+                  FontSize="{OnPlatform Default=16, Android=14}"
+                  Foreground="#666666"
+                  Padding="{OnPlatform Default=8, Android=6}"
+                  CornerRadius="4">
+            <Button.Styles>
+              <Style Selector="Button:pointerover">
+                <Setter Property="Background" Value="#e9ecef"/>
+              </Style>
+            </Button.Styles>
+          </Button>
+        </Grid>
+      </Border>
+      
+      <!-- 内容区域 - 暂时为空，用于测试 -->
+      <Grid Margin="{OnPlatform Default='0,60,0,0', Android='0,50,0,0'}">
+        <TextBlock Text="单词表内容区域"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   FontSize="{OnPlatform Default=16, Android=14}"
+                   Foreground="#666666"
+                   FontFamily="{DynamicResource HarmonyOSRegular}"/>
+      </Grid>
+    </Grid>
+  </Border>
+
+</UserControl>
