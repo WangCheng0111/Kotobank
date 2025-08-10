@@ -166,7 +166,8 @@
         <Setter Property="FontWeight" Value="Medium"/>
         <Setter Property="Padding" Value="20,10"/>
         <Setter Property="CornerRadius" Value="8"/>
-        <Setter Property="Height" Value="44"/>
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="Width" Value="77"/>
         <Setter Property="Template">
             <ControlTemplate>
                 <Border x:Name="PART_Border"
@@ -178,7 +179,8 @@
                     <StackPanel Orientation="Horizontal" 
                                Spacing="4"
                                HorizontalAlignment="Center"
-                               VerticalAlignment="Center">
+                               VerticalAlignment="Center"
+                               Margin="-11,0,0,0">
                         <TextBlock Text="确定" 
                                   VerticalAlignment="Center"
                                   Foreground="{TemplateBinding Foreground}"
