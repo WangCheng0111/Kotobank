@@ -19,6 +19,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <converters:MarginConverter x:Key="MarginConverter"/>
+            <converters:IsZeroConverter x:Key="IsZeroConverter"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceInclude Source="/Resources/Colors.axaml"/>
                 <ResourceInclude Source="/Resources/Icons.axaml"/>

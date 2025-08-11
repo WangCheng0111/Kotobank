@@ -10,7 +10,6 @@
   <!-- 导入进度对话框内容 - 使用OnPlatform自动适配尺寸 -->
   <Border Background="White"
           CornerRadius="12"
-          BoxShadow="0 8 32 0 #40000000"
           Width="{OnPlatform Default=400, Android=300}"
           Height="{OnPlatform Default=200, Android=180}"
           Margin="{Binding DialogTranslateY, Converter={StaticResource MarginConverter}}"

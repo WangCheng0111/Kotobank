@@ -3,14 +3,18 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:riyu.ViewModels"
+             xmlns:converters="using:riyu.Converters"
              x:Class="riyu.Views.WordListDialog"
              x:DataType="vm:MainViewModel"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="600">
 
+  <UserControl.Resources>
+    <converters:EmptyStateVisibilityConverter x:Key="EmptyStateVisibilityConverter"/>
+  </UserControl.Resources>
+
   <!-- 单词表列表对话框内容 -->
   <Border Background="White"
           CornerRadius="12"
-          BoxShadow="0 8 32 0 #40000000"
           Width="{OnPlatform Default=400, Android=320}"
           Height="{OnPlatform Default=600, Android=480}"
           Margin="{Binding WordListDialogTranslateY, Converter={StaticResource MarginConverter}}"
@@ -30,7 +34,7 @@
     
     <Grid>
       <!-- 标题栏 -->
-      <Border Background="#f8f9fa"
+      <Border Background="Transparent"
               CornerRadius="12,12,0,0"
               Height="{OnPlatform Default=60, Android=50}"
               VerticalAlignment="Top">
@@ -42,34 +46,148 @@
                      Foreground="#2d2d2d"
                      FontFamily="{DynamicResource HarmonyOSBold}"/>
           
-          <!-- 关闭按钮 -->
-          <Button Content="✕"
-                  Command="{Binding HideWordListDialogCommand}"
-                  HorizontalAlignment="Right"
-                  VerticalAlignment="Center"
-                  Background="Transparent"
-                  BorderThickness="0"
-                  FontSize="{OnPlatform Default=16, Android=14}"
-                  Foreground="#666666"
-                  Padding="{OnPlatform Default=8, Android=6}"
-                  CornerRadius="4">
-            <Button.Styles>
-              <Style Selector="Button:pointerover">
-                <Setter Property="Background" Value="#e9ecef"/>
-              </Style>
-            </Button.Styles>
+          <!-- 刷新按钮 -->
+          <Button Command="{Binding RefreshSheetsListCommand}"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Center"
+                   Background="Transparent"
+                   BorderThickness="0"
+                   FontSize="{OnPlatform Default=16, Android=14}"
+                   Foreground="#666666"
+                   Padding="{OnPlatform Default=8, Android=6}"
+                   CornerRadius="4"
+                   Margin="0,0,40,0">
+            <TextBlock Text="&#xE72C;"
+                       FontFamily="{StaticResource SegoeFluentIcons}"
+                       FontSize="12"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"/>
           </Button>
+          
+          <!-- 关闭按钮 -->
+          <Button
+                   Command="{Binding HideWordListDialogCommand}"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Center"
+                   Classes="dialog-close-button"
+                   Background="Transparent"
+                   BorderThickness="0"
+                   FontSize="{OnPlatform Default=16, Android=14}"
+                   Foreground="#666666"
+                   Padding="{OnPlatform Default=8, Android=6}"
+                   CornerRadius="4">
+             <TextBlock Text="&#xE8BB;"
+                        FontFamily="{StaticResource SegoeFluentIcons}"
+                        FontSize="12"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"/>
+           </Button>
         </Grid>
       </Border>
       
-      <!-- 内容区域 - 暂时为空，用于测试 -->
+      <!-- 内容区域 - 显示sheet列表 -->
       <Grid Margin="{OnPlatform Default='0,60,0,0', Android='0,50,0,0'}">
-        <TextBlock Text="单词表内容区域"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"
-                   FontSize="{OnPlatform Default=16, Android=14}"
-                   Foreground="#666666"
-                   FontFamily="{DynamicResource HarmonyOSRegular}"/>
+        <ScrollViewer VerticalScrollBarVisibility="Hidden">
+          <StackPanel Margin="{OnPlatform Default='20,0', Android='16,0'}">
+            
+            
+            <!-- Sheet列表 -->
+            <ItemsControl ItemsSource="{Binding Sheets}"
+                          IsVisible="{Binding IsLoadingSheets, Converter={x:Static BoolConverters.Not}}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Border Background="#f8f9fa"
+                          CornerRadius="8"
+                          Margin="0,0,0,12"
+                          Padding="16,12"
+                          BorderThickness="1"
+                          BorderBrush="#e9ecef">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                      </Grid.ColumnDefinitions>
+                      
+                      <!-- Sheet名称和单词数量 -->
+                      <StackPanel Grid.Column="0" 
+                                  Spacing="4">
+                        <TextBlock Text="{Binding Name}"
+                                   FontSize="{OnPlatform Default=16, Android=14}"
+                                   FontWeight="Medium"
+                                   Foreground="#2d2d2d"
+                                   FontFamily="{DynamicResource HarmonyOSMedium}"/>
+                        <StackPanel Orientation="Horizontal" 
+                                   Spacing="0"
+                                   VerticalAlignment="Center">
+                          <TextBlock Text="{Binding WordCount}"
+                                     FontSize="{OnPlatform Default=12, Android=10}"
+                                     Foreground="#666666"
+                                     FontFamily="{DynamicResource HarmonyOSRegular}"/>
+                          <TextBlock Text=" 个单词"
+                                     FontSize="{OnPlatform Default=12, Android=10}"
+                                     Foreground="#666666"
+                                     FontFamily="{DynamicResource HarmonyOSRegular}"/>
+                        </StackPanel>
+                      </StackPanel>
+                      
+                      <!-- 箭头图标 -->
+                      <PathIcon Grid.Column="1"
+                                Data="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"
+                                Width="20"
+                                Height="20"
+                                Foreground="#999999"
+                                VerticalAlignment="Center"/>
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            
+          </StackPanel>
+        </ScrollViewer>
+      </Grid>
+      
+      <!-- 空状态覆盖层：相对于整个对话框居中 -->
+      <Grid ZIndex="2">
+        <Grid.IsVisible>
+          <MultiBinding Converter="{StaticResource EmptyStateVisibilityConverter}">
+            <Binding Path="IsLoadingSheets"/>
+            <Binding Path="Sheets.Count"/>
+          </MultiBinding>
+        </Grid.IsVisible>
+        <StackPanel HorizontalAlignment="Center" 
+                    VerticalAlignment="Center" 
+                    Spacing="12">
+          <TextBlock Text="暂无单词表"
+                     FontSize="{OnPlatform Default=16, Android=14}"
+                     Foreground="#666666"
+                     FontFamily="{DynamicResource HarmonyOSRegular}"
+                     HorizontalAlignment="Stretch"
+                     TextAlignment="Center"/>
+          <TextBlock Text="请先导入Excel文件"
+                     FontSize="{OnPlatform Default=12, Android=10}"
+                     Foreground="#999999"
+                     FontFamily="{DynamicResource HarmonyOSRegular}"
+                     HorizontalAlignment="Stretch"
+                     TextAlignment="Center"/>
+        </StackPanel>
+      </Grid>
+      
+      <!-- 加载覆盖层：相对于整个对话框居中 -->
+      <Grid IsVisible="{Binding IsLoadingSheets}"
+            ZIndex="3">
+        <StackPanel Orientation="Vertical"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Spacing="8">
+          <ProgressBar IsIndeterminate="True" Width="160" Height="4"/>
+          <TextBlock Text="正在加载..."
+                     FontSize="{OnPlatform Default=12, Android=10}"
+                     Foreground="#666666"
+                     HorizontalAlignment="Center"
+                     TextAlignment="Center"
+                     FontFamily="{DynamicResource HarmonyOSRegular}"/>
+        </StackPanel>
       </Grid>
     </Grid>
   </Border>

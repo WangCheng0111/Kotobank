@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.Input;
 using riyu.Services;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -37,6 +38,10 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty] private double _wordListDialogTranslateY = 200.0; // 单词表对话框Y轴偏移，用于滑动动画
     [ObservableProperty] private double _wordListDialogOpacity = 0.0; // 单词表对话框不透明度，用于淡入动画
     [ObservableProperty] private double _wordListOverlayOpacity = 0.0; // 单词表遮罩不透明度，用于淡入动画
+    
+    // 单词表列表数据
+    [ObservableProperty] private ObservableCollection<SheetInfo> _sheets = new();
+    [ObservableProperty] private bool _isLoadingSheets = false;
     
     private readonly ExcelService _excelService;
     private readonly DatabaseService _databaseService;
@@ -305,6 +310,10 @@ public partial class MainViewModel : ViewModelBase
                 WordListOverlayOpacity = 1.0;
             });
         });
+        
+        // 切换为加载中并后台加载sheet列表（不阻塞UI）
+        await Dispatcher.UIThread.InvokeAsync(() => { IsLoadingSheets = true; });
+        _ = LoadSheetsAsync();
     }
     
     [RelayCommand]
@@ -330,6 +339,41 @@ public partial class MainViewModel : ViewModelBase
             WordListDialogOpacity = 0.0;       // 重置为入场动画的初始透明度
             WordListOverlayOpacity = 0.0;      // 重置为入场动画的初始透明度
         });
+    }
+    
+    private async Task LoadSheetsAsync()
+    {
+        try
+        {
+            // 将磁盘与数据库读取放到后台线程，避免阻塞UI
+            var sheets = await Task.Run(async () => await _databaseService.GetAllSheetsAsync());
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                Sheets.Clear();
+                foreach (var sheet in sheets)
+                {
+                    Sheets.Add(sheet);
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"加载sheet列表时出错: {ex.Message}");
+        }
+        finally
+        {
+            await Dispatcher.UIThread.InvokeAsync(() => { IsLoadingSheets = false; });
+        }
+    }
+    
+    [RelayCommand]
+    private async Task RefreshSheetsList()
+    {
+        // 清除缓存并重新加载
+        _databaseService.ClearCache();
+        
+        await Dispatcher.UIThread.InvokeAsync(() => { IsLoadingSheets = true; });
+        await LoadSheetsAsync();
     }
 
 }
