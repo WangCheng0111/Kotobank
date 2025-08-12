@@ -304,7 +304,7 @@
     </Style>
     
     <!-- 对话框关闭按钮样式 - 悬停/按下背景保持透明 -->
-    <Style Selector="Button.dialog-close-button">
+    <Style Selector="Button.wordlist-close-button">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Padding" Value="0"/>
@@ -325,12 +325,74 @@
     </Style>
     
     <!-- 悬停时仍保持透明背景 -->
-    <Style Selector="Button.dialog-close-button:pointerover /template/ Border#PART_Border">
+    <Style Selector="Button.wordlist-close-button:pointerover /template/ Border#PART_Border">
         <Setter Property="Background" Value="Transparent"/>
     </Style>
     
     <!-- 按下时仍保持透明背景 -->
-    <Style Selector="Button.dialog-close-button:pressed /template/ Border#PART_Border">
+    <Style Selector="Button.wordlist-close-button:pressed /template/ Border#PART_Border">
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    
+    <!-- 刷新按钮样式 - 无悬停和按下动画 -->
+    <Style Selector="Button.wordlist-refresh-button">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border x:Name="PART_Border"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        Padding="{TemplateBinding Padding}">
+                    <ContentPresenter Content="{TemplateBinding Content}"
+                                      ContentTemplate="{TemplateBinding ContentTemplate}"
+                                      HorizontalContentAlignment="Center"
+                                      VerticalContentAlignment="Center"/>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    
+    <!-- 悬停时仍保持透明背景 -->
+    <Style Selector="Button.wordlist-refresh-button:pointerover /template/ Border#PART_Border">
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    
+    <!-- 按下时仍保持透明背景 -->
+    <Style Selector="Button.wordlist-refresh-button:pressed /template/ Border#PART_Border">
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    
+    <!-- 删除按钮样式 - 无悬停和按下动画 -->
+    <Style Selector="Button.wordlist-delete-button">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border x:Name="PART_Border"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        Padding="{TemplateBinding Padding}">
+                    <ContentPresenter Content="{TemplateBinding Content}"
+                                      ContentTemplate="{TemplateBinding ContentTemplate}"
+                                      HorizontalContentAlignment="Center"
+                                      VerticalContentAlignment="Center"/>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    
+    <!-- 悬停时仍保持透明背景 -->
+    <Style Selector="Button.wordlist-delete-button:pointerover /template/ Border#PART_Border">
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    
+    <!-- 按下时仍保持透明背景 -->
+    <Style Selector="Button.wordlist-delete-button:pressed /template/ Border#PART_Border">
         <Setter Property="Background" Value="Transparent"/>
     </Style>
 

@@ -39,7 +39,15 @@
               Height="{OnPlatform Default=60, Android=50}"
               VerticalAlignment="Top">
         <Grid Margin="{OnPlatform Default='20,0', Android='16,0'}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          
           <TextBlock Text="单词表"
+                     Grid.Column="0"
                      FontSize="{OnPlatform Default=18, Android=16}"
                      FontWeight="Bold"
                      VerticalAlignment="Center"
@@ -48,15 +56,24 @@
           
           <!-- 刷新按钮 -->
           <Button Command="{Binding RefreshSheetsListCommand}"
-                   HorizontalAlignment="Right"
+                   Grid.Column="1"
                    VerticalAlignment="Center"
+                   Classes="wordlist-refresh-button"
                    Background="Transparent"
                    BorderThickness="0"
                    FontSize="{OnPlatform Default=16, Android=14}"
                    Foreground="#666666"
                    Padding="{OnPlatform Default=8, Android=6}"
                    CornerRadius="4"
-                   Margin="0,0,40,0">
+                   Margin="0,0,8,0">
+            <ToolTip.Tip>
+              <ToolTip Background="#2d2d2d" 
+                        Foreground="White"
+                        FontSize="12"
+                        FontFamily="{DynamicResource HarmonyOSRegular}">
+                <TextBlock Text="刷新单词表列表"/>
+              </ToolTip>
+            </ToolTip.Tip>
             <TextBlock Text="&#xE72C;"
                        FontFamily="{StaticResource SegoeFluentIcons}"
                        FontSize="12"
@@ -64,12 +81,38 @@
                        HorizontalAlignment="Center"/>
           </Button>
           
-          <!-- 关闭按钮 -->
-          <Button
-                   Command="{Binding HideWordListDialogCommand}"
-                   HorizontalAlignment="Right"
+          <!-- 删除所有单词表按钮 -->
+          <Button Command="{Binding DeleteAllSheetsCommand}"
+                   Grid.Column="2"
                    VerticalAlignment="Center"
-                   Classes="dialog-close-button"
+                   Classes="wordlist-delete-button"
+                   Background="Transparent"
+                   BorderThickness="0"
+                   FontSize="{OnPlatform Default=16, Android=14}"
+                   Foreground="#dc3545"
+                   Padding="{OnPlatform Default=8, Android=6}"
+                   CornerRadius="4"
+                   Margin="0,0,8,0">
+            <ToolTip.Tip>
+              <ToolTip Background="#2d2d2d" 
+                        Foreground="White"
+                        FontSize="12"
+                        FontFamily="{DynamicResource HarmonyOSRegular}">
+                <TextBlock Text="删除所有单词表"/>
+              </ToolTip>
+            </ToolTip.Tip>
+            <TextBlock Text="&#xE74D;"
+                       FontFamily="{StaticResource SegoeFluentIcons}"
+                       FontSize="12"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"/>
+          </Button>
+          
+          <!-- 关闭按钮 -->
+          <Button Command="{Binding HideWordListDialogCommand}"
+                   Grid.Column="3"
+                   VerticalAlignment="Center"
+                   Classes="wordlist-close-button"
                    Background="Transparent"
                    BorderThickness="0"
                    FontSize="{OnPlatform Default=16, Android=14}"

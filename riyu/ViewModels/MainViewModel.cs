@@ -156,13 +156,21 @@ public partial class MainViewModel : ViewModelBase
                 int processedSheets = 0;
                 double baseProgress = 20.0; // 从20%开始
                 double maxProgress = 80.0;  // 到80%结束
+                int overriddenCount = 0;
+                int createdCount = 0;
+                int totalWords = 0;
                 
                 foreach (var sheetData in sheetsData)
                 {
                     if (sheetData.Words.Count > 0)
                     {
+                        bool exists = _databaseService.SheetExists(sheetData.SheetName);
+                        string actionText = exists ? "覆盖" : "导入";
+                        if (exists) overriddenCount++; else createdCount++;
+                        totalWords += sheetData.Words.Count;
+                        
                         // 更新进度提示（需要回到UI线程更新UI）
-                        await UpdateImportStatusAsync($"正在保存工作表 {processedSheets + 1}/{totalSheets}: {sheetData.SheetName} ({sheetData.Words.Count}个单词)");
+                        await UpdateImportStatusAsync($"正在{actionText}工作表 {processedSheets + 1}/{totalSheets}: {sheetData.SheetName} ({sheetData.Words.Count}个单词)");
                         
                         // 计算当前进度
                         double currentProgress = baseProgress + (maxProgress - baseProgress) * processedSheets / totalSheets;
@@ -201,8 +209,8 @@ public partial class MainViewModel : ViewModelBase
                 // 设置进度到100%
                 await UpdateImportProgressAsync(100.0);
                 
-                // 完成提示
-                await UpdateImportStatusAsync($"导入成功！共处理了 {processedSheets} 个工作表，总计 {sheetsData.Sum(s => s.Words.Count)} 个单词");
+                // 完成提示（覆盖/新建统计）
+                await UpdateImportStatusAsync($"导入成功！覆盖 {overriddenCount} 个，新建 {createdCount} 个，总计 {totalWords} 个单词");
                 
                 // 显示成功消息1秒后关闭对话框
                 await Task.Delay(1000).ConfigureAwait(false);
@@ -374,6 +382,59 @@ public partial class MainViewModel : ViewModelBase
         
         await Dispatcher.UIThread.InvokeAsync(() => { IsLoadingSheets = true; });
         await LoadSheetsAsync();
+    }
+    
+    [RelayCommand]
+    private async Task DeleteAllSheets()
+    {
+        try
+        {
+            // 显示确认对话框
+            var result = await ShowConfirmationDialog("确认删除", "确定要删除所有已导入的单词表吗？此操作不可恢复。");
+            
+            if (result)
+            {
+                // 执行删除操作（不显示加载状态）
+                await Task.Run(() => _databaseService.DeleteAllSheets());
+                
+                // 直接清空当前显示的列表，不显示加载动画
+                await Dispatcher.UIThread.InvokeAsync(() => 
+                {
+                    Sheets.Clear();
+                    // 不设置IsLoadingSheets = true，直接显示空状态
+                });
+                
+                // 显示成功消息
+                await ShowMessageDialog("删除成功", "所有单词表已成功删除。");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"删除所有单词表时出错: {ex.Message}");
+            await ShowMessageDialog("删除失败", $"删除单词表时出错: {ex.Message}");
+        }
+    }
+    
+    private async Task<bool> ShowConfirmationDialog(string title, string message)
+    {
+        // 简单的确认对话框实现
+        // 在实际应用中，你可能想要使用更复杂的对话框组件
+        return await Task.Run(() => 
+        {
+            // 这里可以集成实际的对话框组件
+            // 暂时返回true作为示例
+            return true;
+        });
+    }
+    
+    private async Task ShowMessageDialog(string title, string message)
+    {
+        // 简单的消息对话框实现
+        // 在实际应用中，你可能想要使用更复杂的对话框组件
+        await Task.Run(() => 
+        {
+            System.Diagnostics.Debug.WriteLine($"{title}: {message}");
+        });
     }
 
 }

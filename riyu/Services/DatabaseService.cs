@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.Sqlite;
 using riyu.Models;
 using System;
 using System.Collections.Generic;
@@ -255,6 +256,108 @@ public class DatabaseService
     {
         _cachedSheets = null;
         _lastIndexUpdate = DateTime.MinValue;
+    }
+    
+    /// <summary>
+    /// 删除所有单词表数据
+    /// </summary>
+    public void DeleteAllSheets()
+    {
+        try
+        {
+            var wordTablesPath = Path.Combine(_baseDataPath, "WordTables");
+            
+            if (Directory.Exists(wordTablesPath))
+            {
+                // 释放所有SQLite连接池，避免数据库文件被占用
+                try { SqliteConnection.ClearAllPools(); } catch { }
+
+                // 删除所有子文件夹（每个单词表一个文件夹）
+                var subDirectories = Directory.GetDirectories(wordTablesPath);
+                foreach (var dir in subDirectories)
+                {
+                    try
+                    {
+                        // 优先尝试删除数据库文件及其 -wal/-shm
+                        var dbPath = Path.Combine(dir, "words.db");
+                        var walPath = dbPath + "-wal";
+                        var shmPath = dbPath + "-shm";
+
+                        void TryDeleteFile(string path)
+                        {
+                            if (File.Exists(path))
+                            {
+                                try
+                                {
+                                    File.SetAttributes(path, FileAttributes.Normal);
+                                    File.Delete(path);
+                                }
+                                catch (Exception ex)
+                                {
+                                    System.Diagnostics.Debug.WriteLine($"删除文件 {path} 时出错: {ex.Message}");
+                                }
+                            }
+                        }
+
+                        TryDeleteFile(walPath);
+                        TryDeleteFile(shmPath);
+                        TryDeleteFile(dbPath);
+
+                        // 尝试删除目录（包含其他文件）
+                        try
+                        {
+                            Directory.Delete(dir, true);
+                        }
+                        catch
+                        {
+                            // 再清理一次连接池并重试一次
+                            try { SqliteConnection.ClearAllPools(); } catch { }
+                            System.Threading.Thread.Sleep(100);
+                            Directory.Delete(dir, true);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"删除文件夹 {dir} 时出错: {ex.Message}");
+                    }
+                }
+                
+                // 删除索引文件
+                if (File.Exists(_indexFilePath))
+                {
+                    try
+                    {
+                        File.Delete(_indexFilePath);
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"删除索引文件时出错: {ex.Message}");
+                    }
+                }
+            }
+            
+            // 清除缓存
+            ClearCache();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"删除所有单词表时出错: {ex.Message}");
+            throw;
+        }
+    }
+
+    public bool SheetExists(string sheetName)
+    {
+        try
+        {
+            var sheetFolderName = SanitizeFileName(sheetName);
+            var sheetFolderPath = Path.Combine(_baseDataPath, "WordTables", sheetFolderName);
+            return Directory.Exists(sheetFolderPath);
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
 
