@@ -16,14 +16,52 @@ namespace riyu.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
+    // 窗口引用
+    private Window? _window;
+    
+    // 设置窗口引用的方法
+    public void SetWindowReference(Window window)
+    {
+        _window = window;
+    }
 
 
     [ObservableProperty] private bool _isProcessing = false;
     
+    // 窗口边距属性 - 用于窗口最大化时的边距调整
+    [ObservableProperty] private Thickness _windowPadding = new Thickness(0);
+    
+    // 界面状态控制
+    [ObservableProperty] private bool _hasImportedData = false; // 是否有导入的数据
+    [ObservableProperty] private bool _isInitialized = false; // 是否已初始化
+    
+    // 窗口控制按钮状态
+    private string _maximizeButtonIcon = "\uE922"; // 最大化按钮图标
+    public string MaximizeButtonIcon
+    {
+        get => _maximizeButtonIcon;
+        set => SetProperty(ref _maximizeButtonIcon, value);
+    }
+    
+    // 播放状态控制
+    [ObservableProperty] private bool _isPlaying = false; // 是否正在播放
+    
+    // 进度控制
+    [ObservableProperty] private double _progress = 0.0; // 进度值 0.0-1.0
+    [ObservableProperty] private string _pageDisplay = "0/20"; // 页码显示
+    
+    // 进度管理
+    [ObservableProperty] private int _studyIndex = -1; // 已学习进度，从-1开始
+    [ObservableProperty] private int _currentIndex = 0; // 当前单词索引
+    [ObservableProperty] private int _totalCount = 20; // 总单词数
+    
+    // 词性标签可见性控制
+    [ObservableProperty] private bool _isWordTypeVisible = true;
+    
     // UI元素的属性
-    [ObservableProperty] private string _chineseTranslation = "见面";
+    [ObservableProperty] private string _chineseTranslation = string.Empty;
     [ObservableProperty] private string _japaneseInput = string.Empty;
-    [ObservableProperty] private string _wordType = "及物动词";
+    [ObservableProperty] private string _wordType = string.Empty;
     
     // 导入进度对话框控制
     [ObservableProperty] private bool _isImportDialogVisible = false;
@@ -43,6 +81,9 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty] private ObservableCollection<SheetInfo> _sheets = new();
     [ObservableProperty] private bool _isLoadingSheets = false;
     
+    // 删除操作标志
+    private bool _isDeleting = false;
+    
     private readonly ExcelService _excelService;
     private readonly DatabaseService _databaseService;
     
@@ -53,6 +94,222 @@ public partial class MainViewModel : ViewModelBase
     {
         _excelService = new ExcelService();
         _databaseService = new DatabaseService();
+        
+        // 初始化时检查数据库状态
+        _ = InitializeAsync();
+    }
+
+    /// <summary>
+    /// 初始化方法 - 检查本地数据库状态
+    /// </summary>
+    private async Task InitializeAsync()
+    {
+        try
+        {
+            // 检查是否有导入的单词表
+            var hasSheets = await _databaseService.HasAnySheetsAsync();
+            HasImportedData = hasSheets;
+            
+            if (hasSheets)
+            {
+                // 如果有数据，加载第一个sheet的第一个单词和总单词数量
+                var firstWord = await _databaseService.GetFirstWordAsync();
+                if (firstWord != null)
+                {
+                    ChineseTranslation = firstWord.Chinese;
+                    WordType = string.IsNullOrEmpty(firstWord.PartOfSpeech) ? "未知" : firstWord.PartOfSpeech;
+                    
+                    // 获取第一个sheet的总单词数量
+                    var sheets = await _databaseService.GetAllSheetsAsync();
+                    if (sheets.Count > 0)
+                    {
+                        var firstSheet = sheets[0];
+                        var words = _databaseService.GetWordsBySheetName(firstSheet.Name);
+                        
+                        // 更新进度相关的属性
+                        TotalCount = words.Count;
+                        CurrentIndex = 0;
+                        StudyIndex = -1;
+                        Progress = 0.0;
+                        PageDisplay = $"0/{TotalCount}";
+                        
+                        // 存储单词列表供后续使用
+                        _importedWords = words;
+                    }
+                }
+            }
+            // 如果没有数据，界面会自动显示导入界面，不需要设置任何默认值
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"初始化时出错: {ex.Message}");
+            // 出错时默认为无数据状态
+            HasImportedData = false;
+        }
+        finally
+        {
+            IsInitialized = true;
+        }
+    }
+    
+    // 更新窗口边距的方法 - 供窗口状态变化时调用
+    public void UpdateWindowPadding(bool isMaximized)
+    {
+        WindowPadding = isMaximized ? new Thickness(7) : new Thickness(0);
+    }
+    
+    // 更新最大化按钮图标的方法
+    public void UpdateMaximizeButtonIcon(bool isMaximized)
+    {
+        MaximizeButtonIcon = isMaximized ? "\uE923" : "\uE922";
+    }
+    
+    // 窗口控制命令
+    private RelayCommand? _minimizeWindowCommand;
+    public RelayCommand MinimizeWindowCommand => _minimizeWindowCommand ??= new RelayCommand(MinimizeWindow);
+    
+    private RelayCommand? _maximizeWindowCommand;
+    public RelayCommand MaximizeWindowCommand => _maximizeWindowCommand ??= new RelayCommand(MaximizeWindow);
+    
+    private RelayCommand? _closeWindowCommand;
+    public RelayCommand CloseWindowCommand => _closeWindowCommand ??= new RelayCommand(CloseWindow);
+    
+    private void MinimizeWindow()
+    {
+        if (_window != null)
+        {
+            _window.WindowState = WindowState.Minimized;
+        }
+    }
+    
+    private void MaximizeWindow()
+    {
+        if (_window != null)
+        {
+            if (_window.WindowState == WindowState.Maximized)
+            {
+                _window.WindowState = WindowState.Normal;
+            }
+            else
+            {
+                _window.WindowState = WindowState.Maximized;
+            }
+        }
+    }
+    
+    private void CloseWindow()
+    {
+        if (_window != null)
+        {
+            _window.Close();
+        }
+    }
+    
+    // 切换播放状态命令
+    [RelayCommand]
+    private void TogglePlay()
+    {
+        IsPlaying = !IsPlaying;
+    }
+    
+    // 上一个单词命令
+    [RelayCommand]
+    private void NavigateToPreviousWord()
+    {
+        // 如果是第一个单词，不做任何操作
+        if (CurrentIndex <= 0)
+            return;
+            
+        // 后退到上一个单词
+        CurrentIndex--;
+        
+        // 更新显示的单词内容
+        UpdateCurrentWordDisplay();
+        
+        // 更新进度条和页码显示
+        UpdatePageDisplay();
+    }
+    
+    // 下一个单词命令
+    [RelayCommand]
+    private void NavigateToNextWord()
+    {
+        // 如果是最后一个单词，不做任何操作
+        if (CurrentIndex >= TotalCount)
+            return;
+            
+        // 前进到下一个单词
+        CurrentIndex++;
+        
+        // 更新显示的单词内容
+        UpdateCurrentWordDisplay();
+        
+        // 更新进度条和页码显示
+        UpdatePageDisplay();
+    }
+    
+    // 更新当前显示的单词内容
+    private void UpdateCurrentWordDisplay()
+    {
+        if (_importedWords.Count > 0 && CurrentIndex >= 0)
+        {
+            // 检查是否到达或超过最后一个单词
+            if (CurrentIndex >= TotalCount)
+            {
+                // 已完成所有单词，显示完成提示
+                ChineseTranslation = "你已完成此次听写";
+                WordType = string.Empty;
+                IsWordTypeVisible = false;
+            }
+            else
+            {
+                // 显示当前单词内容
+                var currentWord = _importedWords[CurrentIndex];
+                ChineseTranslation = currentWord.Chinese;
+                WordType = string.IsNullOrEmpty(currentWord.PartOfSpeech) ? "未知" : currentWord.PartOfSpeech;
+                IsWordTypeVisible = true;
+            }
+        }
+    }
+    
+    // 进度更新方法
+    private void UpdateProgress()
+    {
+        // 计算进度：已学习的单词数 / 总单词数
+        // StudyIndex从-1开始，所以需要+1
+        int completedCount = StudyIndex + 1;
+        
+        // 确保进度在0到1之间
+        if (TotalCount == 0)
+        {
+            Progress = 0;
+        }
+        else
+        {
+            Progress = (double)completedCount / TotalCount;
+        }
+        
+        // 页码显示：已学习的单词数/总数
+        PageDisplay = $"{completedCount}/{TotalCount}";
+    }
+    
+    // 更新页码显示，同时更新进度条以反映当前位置
+    private void UpdatePageDisplay()
+    {
+        // 更新进度条以反映当前位置
+        if (TotalCount == 0)
+        {
+            Progress = 0;
+        }
+        else
+        {
+            // 使用CurrentIndex来计算进度，这样第一个单词时进度条显示为0
+            // 最后一个单词时进度条显示为满格
+            Progress = (double)(CurrentIndex) / TotalCount;
+        }
+        
+        // 页码显示：当前单词位置/总数（从0开始）
+        PageDisplay = $"{CurrentIndex}/{TotalCount}";
     }
     
     [RelayCommand]
@@ -206,6 +463,12 @@ public partial class MainViewModel : ViewModelBase
                     await UpdateWordTypeAsync(_importedWords[0].PartOfSpeech);
                 }
                 
+                // 更新界面状态 - 现在有导入的数据了
+                await Dispatcher.UIThread.InvokeAsync(() => 
+                {
+                    HasImportedData = true;
+                });
+                
                 // 设置进度到100%
                 await UpdateImportProgressAsync(100.0);
                 
@@ -353,8 +616,21 @@ public partial class MainViewModel : ViewModelBase
     {
         try
         {
+            // 如果正在删除，跳过数据库操作
+            if (_isDeleting)
+            {
+                return;
+            }
+            
             // 将磁盘与数据库读取放到后台线程，避免阻塞UI
             var sheets = await Task.Run(async () => await _databaseService.GetAllSheetsAsync());
+            
+            // 再次检查是否正在删除
+            if (_isDeleting)
+            {
+                return;
+            }
+            
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
                 Sheets.Clear();
@@ -385,6 +661,76 @@ public partial class MainViewModel : ViewModelBase
     }
     
     [RelayCommand]
+    private async Task SelectSheet(SheetInfo sheetInfo)
+    {
+        try
+        {
+            // 关闭单词表列表对话框
+            IsWordListDialogVisible = false;
+            WordListDialogOpacity = 0.0;
+            WordListOverlayOpacity = 0.0;
+            WordListDialogTranslateY = 200.0;
+            
+            // 加载选中的sheet的单词
+            await LoadSheetWordsAsync(sheetInfo);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"选择sheet时出错: {ex.Message}");
+        }
+    }
+    
+    private async Task LoadSheetWordsAsync(SheetInfo sheetInfo)
+    {
+        try
+        {
+            // 从数据库加载指定sheet的单词
+            var words = await Task.Run(() => _databaseService.GetWordsBySheetName(sheetInfo.Name));
+            
+            if (words != null && words.Count > 0)
+            {
+                // 更新UI状态
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    HasImportedData = true;
+                    TotalCount = words.Count;
+                    CurrentIndex = 0;
+                    StudyIndex = -1;
+                    Progress = 0.0;
+                    PageDisplay = $"0/{TotalCount}";
+                    
+                    // 存储单词列表供后续使用
+                    _importedWords = words;
+                });
+                
+                // 显示第一个单词
+                var firstWord = words[0];
+                await UpdateChineseTranslationAsync(firstWord.Chinese);
+                await UpdateWordTypeAsync(firstWord.PartOfSpeech);
+            }
+            else
+            {
+                // 如果没有单词，显示提示
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    HasImportedData = false;
+                    ChineseTranslation = string.Empty;
+                    WordType = string.Empty;
+                    TotalCount = 0;
+                    CurrentIndex = 0;
+                    StudyIndex = -1;
+                    Progress = 0.0;
+                    PageDisplay = "0/0";
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"加载sheet单词时出错: {ex.Message}");
+        }
+    }
+    
+    [RelayCommand]
     private async Task DeleteAllSheets()
     {
         try
@@ -394,24 +740,49 @@ public partial class MainViewModel : ViewModelBase
             
             if (result)
             {
+                // 设置删除标志
+                _isDeleting = true;
+                
+                // 先更新UI状态，避免在删除过程中进行数据库查询
+                await Dispatcher.UIThread.InvokeAsync(() => 
+                {
+                    // 更新界面状态 - 现在没有数据了
+                    HasImportedData = false;
+                    ChineseTranslation = string.Empty;
+                    WordType = string.Empty;
+                    Sheets.Clear();
+                });
+                
                 // 执行删除操作（不显示加载状态）
                 await Task.Run(() => _databaseService.DeleteAllSheets());
                 
-                // 直接清空当前显示的列表，不显示加载动画
-                await Dispatcher.UIThread.InvokeAsync(() => 
-                {
-                    Sheets.Clear();
-                    // 不设置IsLoadingSheets = true，直接显示空状态
-                });
-                
                 // 显示成功消息
-                await ShowMessageDialog("删除成功", "所有单词表已成功删除。");
+                await ShowMessageDialog("删除成功", "所有单词表已成功删除。如果某些文件无法立即删除，将在下次重启时自动删除。");
+                
+                // 重置删除标志
+                _isDeleting = false;
             }
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"删除所有单词表时出错: {ex.Message}");
-            await ShowMessageDialog("删除失败", $"删除单词表时出错: {ex.Message}");
+            
+            // 检查是否是文件被占用错误
+            if (ex.Message.Contains("being used by another process") || ex.Message.Contains("The process cannot access the file"))
+            {
+                await ShowMessageDialog("删除失败", "无法删除文件，可能是因为文件正在被使用。请关闭所有相关程序后重试。");
+            }
+            else if (ex.Message.Contains("Access to the path") || ex.Message.Contains("is denied"))
+            {
+                await ShowMessageDialog("删除失败", "无法删除文件，可能是因为权限不足。某些文件将在下次重启时自动删除。");
+            }
+            else
+            {
+                await ShowMessageDialog("删除失败", $"删除单词表时出错: {ex.Message}");
+            }
+            
+            // 重置删除标志
+            _isDeleting = false;
         }
     }
     

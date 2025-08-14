@@ -5,6 +5,7 @@
              xmlns:vm="using:riyu.ViewModels"
              xmlns:converters="using:riyu.Converters"
              x:Class="riyu.Views.WordListDialog"
+             x:Name="WordListDialogControl"
              x:DataType="vm:MainViewModel"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="600">
 
@@ -139,12 +140,17 @@
                           IsVisible="{Binding IsLoadingSheets, Converter={x:Static BoolConverters.Not}}">
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                  <Border Background="#f8f9fa"
+                  <Button Background="#f8f9fa"
                           CornerRadius="8"
                           Margin="0,0,0,12"
                           Padding="16,12"
                           BorderThickness="1"
-                          BorderBrush="#e9ecef">
+                          BorderBrush="#e9ecef"
+                          HorizontalAlignment="Stretch"
+                          HorizontalContentAlignment="Stretch"
+                          Classes="sheet-button"
+                          Command="{Binding ElementName=WordListDialogControl, Path=DataContext.SelectSheetCommand}"
+                          CommandParameter="{Binding}">
                     <Grid>
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -181,7 +187,7 @@
                                 Foreground="#999999"
                                 VerticalAlignment="Center"/>
                     </Grid>
-                  </Border>
+                  </Button>
                 </DataTemplate>
               </ItemsControl.ItemTemplate>
             </ItemsControl>

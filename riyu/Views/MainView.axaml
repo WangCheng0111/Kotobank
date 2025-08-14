@@ -16,23 +16,23 @@
   </Design.DataContext>
 
   <Grid>
-    <!-- 主要内容 -->
+    <!-- 有导入数据时显示完整界面 -->
     <StackPanel Spacing="40" 
                 HorizontalAlignment="Center" 
-                VerticalAlignment="Center">
-        
-
+                VerticalAlignment="Center"
+                IsVisible="{Binding HasImportedData}">
         
         <!-- 中间内容区域 -->
         <StackPanel Spacing="16" 
                     HorizontalAlignment="Center">
           
-          <!-- 中文释义和词性 -->
+          <!-- 中文释义和词性 - 只在有数据时显示 -->
           <StackPanel Orientation="Horizontal" 
                       HorizontalAlignment="Center" 
                       Spacing="12" 
                       VerticalAlignment="Center"
-                      Margin="0,-150,0,0">
+                      Margin="0,-150,0,0"
+                      IsVisible="{Binding HasImportedData}">
             
             <!-- 中文释义文本框 -->
             <TextBlock Text="{Binding ChineseTranslation}"
@@ -42,11 +42,12 @@
                        FontFamily="{DynamicResource HarmonyOSBold}"
                        VerticalAlignment="Center"/>
             
-            <!-- 词性标签 -->
+            <!-- 词性标签 - 只在有词性时显示 -->
             <Border Background="#f0f0f0"
                     CornerRadius="6"
                     Padding="8,4"
-                    VerticalAlignment="Center">
+                    VerticalAlignment="Center"
+                    IsVisible="{Binding IsWordTypeVisible}">
               <TextBlock Text="{Binding WordType}"
                          FontSize="12"
                          FontWeight="Medium"
@@ -69,9 +70,81 @@
                    HorizontalAlignment="Center"
                    FontFamily="{DynamicResource HarmonyOSRegular}"/>
           
+          <!-- 控制按钮区域 -->
+          <StackPanel Orientation="Horizontal" 
+                      HorizontalAlignment="Center" 
+                      Spacing="20" 
+                      Margin="0,20,0,0">
+            
+            <!-- 上一个按钮 -->
+            <Button Width="40" 
+                    Height="40" 
+                    Classes="control-button"
+                    Command="{Binding NavigateToPreviousWordCommand}">
+              <PathIcon Data="{StaticResource ShangyigeIcon}" 
+                        Width="24" 
+                        Height="24" 
+                        Foreground="#2d2d2d"/>
+            </Button>
+            
+            <!-- 播放/暂停按钮 -->
+            <Button Width="40" 
+                    Height="40" 
+                    Classes="control-button"
+                    Command="{Binding TogglePlayCommand}">
+              <Grid>
+                <!-- 播放图标 - 当未播放时显示 -->
+                <PathIcon Data="{StaticResource BofangIcon}" 
+                          Width="24" 
+                          Height="24" 
+                          Foreground="#2d2d2d"
+                          IsVisible="{Binding !IsPlaying}"/>
+                <!-- 暂停图标 - 当播放时显示 -->
+                <PathIcon Data="{StaticResource ZantingIcon}" 
+                          Width="24" 
+                          Height="24" 
+                          Foreground="#2d2d2d"
+                          IsVisible="{Binding IsPlaying}"/>
+              </Grid>
+            </Button>
+            
+            <!-- 下一个按钮 -->
+            <Button Width="40" 
+                    Height="40" 
+                    Classes="control-button"
+                    Command="{Binding NavigateToNextWordCommand}">
+              <PathIcon Data="{StaticResource XiayigeIcon}" 
+                        Width="24" 
+                        Height="24" 
+                        Foreground="#2d2d2d"/>
+            </Button>
+            
+          </StackPanel>
+          
+          <!-- 进度条和页码 - 使用Grid实现更好的布局 -->
+          <Grid Width="500" HorizontalAlignment="Center" Margin="0,10,0,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- 进度条 - 第一列 -->
+            <ProgressBar Grid.Column="0"
+                         Value="{Binding Progress}" 
+                         Maximum="1.0"
+                         Classes="wordProgress"/>
+            
+            <!-- 页码 - 第二列 -->
+            <TextBlock Grid.Column="1"
+                       Text="{Binding PageDisplay}"
+                       Classes="pageNumber"
+                       Margin="10,5,0,0"
+                       VerticalAlignment="Center"/>
+          </Grid>
+          
         </StackPanel>
         
-        <!-- 导入Excel按钮（暂时保留，后续可以移到设置中） -->
+        <!-- 导入Excel按钮 -->
         <Button Content="导入Excel文件"
                 Command="{Binding SelectExcelFileCommand}"
                 Classes="import-button"
@@ -80,16 +153,47 @@
         
     </StackPanel>
 
-    <!-- 右下角单词表按钮 -->
+    <!-- 无导入数据时只显示导入界面 -->
+    <StackPanel HorizontalAlignment="Center" 
+                VerticalAlignment="Center"
+                Spacing="40"
+                IsVisible="{Binding !HasImportedData}">
+        
+        <!-- 欢迎标题 -->
+        <StackPanel HorizontalAlignment="Center" 
+                    Spacing="16">
+            <TextBlock Text="欢迎使用日语单词斩"
+                       FontSize="28"
+                       FontWeight="Bold"
+                       Foreground="#2d2d2d"
+                       FontFamily="{DynamicResource HarmonyOSBold}"
+                       HorizontalAlignment="Center"/>
+            
+            <TextBlock Text="请先导入Excel文件开始学习"
+                       FontSize="16"
+                       Foreground="#666666"
+                       FontFamily="{DynamicResource HarmonyOSRegular}"
+                       HorizontalAlignment="Center"/>
+        </StackPanel>
+        
+        <!-- 导入Excel按钮 -->
+        <Button Content="导入Excel文件"
+                Command="{Binding SelectExcelFileCommand}"
+                Classes="import-button"
+                HorizontalAlignment="Center"
+                FontFamily="{DynamicResource HarmonyOSMedium}"/>
+        
+    </StackPanel>
+
+    <!-- 右下角单词表按钮 - 只在有数据时显示 -->
     <Button Content="单词表"
             Classes="word-list-button"
             Command="{Binding ShowWordListDialogCommand}"
             HorizontalAlignment="Right"
             VerticalAlignment="Bottom"
             Margin="{OnPlatform Default='0,0,20,20', Android='0,0,20,40'}"
-            FontFamily="{DynamicResource HarmonyOSBold}"/>
-
-
+            FontFamily="{DynamicResource HarmonyOSBold}"
+            IsVisible="{Binding HasImportedData}"/>
 
   </Grid>
 

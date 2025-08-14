@@ -6,92 +6,23 @@
         xmlns:views="clr-namespace:riyu.Views"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="riyu.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="riyu"
         Width="900" Height="640"
         WindowStartupLocation="CenterScreen"
         ExtendClientAreaToDecorationsHint="True"
         ExtendClientAreaChromeHints="NoChrome"
-        ExtendClientAreaTitleBarHeightHint="36">
-    
+        ExtendClientAreaTitleBarHeightHint="36"
+        Padding="{Binding WindowPadding}">
 
-    <!-- 主布局网格：分为标题栏和内容区 -->
     <Grid RowDefinitions="Auto,*">
-        <!-- 标题栏区域 -->
-        <Grid Grid.Row="0" Background="#fffaf7">
-            <!-- 标题栏高度定义 -->
-            <Grid.RowDefinitions>
-                <RowDefinition Height="36"/>
-            </Grid.RowDefinitions>
-            
-            <!-- 标题栏主体部分 -->
-            <Grid Name="TitleBar" Background="Transparent">
-                <!-- 标题栏列布局定义 -->
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                
-                <!-- 左侧标题区域（可拖拽） -->
-                <Grid Grid.Column="0" Background="Transparent">
-                </Grid>
-
-                <!-- 右侧窗口控制按钮区域 -->
-                <StackPanel Grid.Column="1" 
-                            HorizontalAlignment="Right" 
-                            Orientation="Horizontal"
-                            Margin="0,0,0,0">
-
-                    <!-- 最小化按钮 -->
-                    <Button Width="45" 
-                            Height="36"
-                            x:Name="MinimizeButton"
-                            Classes="custom-window-button minimize-button"
-                            BorderThickness="0"
-                            Padding="0">
-                        <TextBlock Text="&#xE921;"
-                                  FontFamily="{StaticResource SegoeFluentIcons}"
-                                  FontSize="10"
-                                  Foreground="#2d2d2d"
-                                  VerticalAlignment="Center"
-                                  HorizontalAlignment="Center"
-                                  IsHitTestVisible="False"/>
-                    </Button>
-
-                    <!-- 最大化/还原按钮 -->
-                    <Button Width="45" 
-                            Height="36"
-                            x:Name="MaximizeButton"
-                            Classes="custom-window-button maximize-button"
-                            BorderThickness="0"
-                            Padding="0">
-                        <TextBlock Text="&#xE922;"
-                                  x:Name="MaximizeIcon"
-                                  FontFamily="{StaticResource SegoeFluentIcons}"
-                                  FontSize="10"
-                                  Foreground="#2d2d2d"
-                                  VerticalAlignment="Center"
-                                  HorizontalAlignment="Center"
-                                  IsHitTestVisible="False"/>
-                    </Button>
-
-                    <!-- 关闭按钮 -->
-                    <Button Width="45" 
-                            Height="36"
-                            x:Name="CloseButton"
-                            Classes="custom-window-button close-button"
-                            BorderThickness="0"
-                            Padding="0">
-                        <TextBlock Text="&#xE8BB;"
-                                  FontFamily="{StaticResource SegoeFluentIcons}"
-                                  FontSize="10"
-                                  Classes="close-button-text"
-                                  VerticalAlignment="Center"
-                                  HorizontalAlignment="Center"
-                                  IsHitTestVisible="False"/>
-                    </Button>
-                </StackPanel>
-            </Grid>
+        <!-- 标题栏 -->
+        <Grid Grid.Row="0" Background="#fffaf7" Height="36" IsHitTestVisible="False">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="135"/>
+            </Grid.ColumnDefinitions>
         </Grid>
 
         <!-- 内容区域 -->
@@ -99,48 +30,44 @@
             <views:MainView />
         </Grid>
         
-        <!-- 导入进度遮罩层和对话框 - 覆盖整个窗口包括标题栏 -->
-        <Grid Grid.Row="0" Grid.RowSpan="2"
-              Background="#80000000"
-              ZIndex="1000"
-              x:DataType="vm:MainViewModel"
-              IsVisible="{Binding IsImportDialogVisible}"
-              Opacity="{Binding OverlayOpacity}">
-          
-          <Grid.Transitions>
-            <Transitions>
-              <DoubleTransition Property="Opacity" 
-                               Duration="0:0:0.5" 
-                               Easing="CubicEaseOut"/>
-            </Transitions>
-          </Grid.Transitions>
-          
-          <Grid HorizontalAlignment="Center"
-                VerticalAlignment="Center">
-            <views:ImportProgressDialog />
-          </Grid>
+        <!-- 窗口控制按钮 -->
+        <StackPanel Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" ZIndex="10" Orientation="Horizontal">
+            <Button Width="45" Height="36" x:Name="MinimizeButton" Classes="custom-window-button minimize-button" BorderThickness="0" Padding="0" Command="{Binding MinimizeWindowCommand}">
+                <TextBlock Text="&#xE921;" FontFamily="{StaticResource SegoeFluentIcons}" FontSize="10" Foreground="#2d2d2d" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False"/>
+            </Button>
+
+            <!-- 最大化/还原按钮 -->
+            <Button Width="45" Height="36" x:Name="MaximizeButton" Classes="custom-window-button maximize-button" BorderThickness="0" Padding="0" Command="{Binding MaximizeWindowCommand}">
+                <TextBlock Text="{Binding MaximizeButtonIcon}" x:Name="MaximizeIcon" FontFamily="{StaticResource SegoeFluentIcons}" FontSize="10" Foreground="#2d2d2d" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False"/>
+            </Button>
+
+            <Button Width="45" Height="36" x:Name="CloseButton" Classes="custom-window-button close-button" BorderThickness="0" Padding="0" Command="{Binding CloseWindowCommand}">
+                <TextBlock Text="&#xE8BB;" FontFamily="{StaticResource SegoeFluentIcons}" FontSize="10" Classes="close-button-text" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False"/>
+            </Button>
+        </StackPanel>
+        
+        <!-- 导入进度遮罩层 -->
+        <Grid Grid.Row="0" Grid.RowSpan="2" Background="#80000000" ZIndex="1000" x:DataType="vm:MainViewModel" IsVisible="{Binding IsImportDialogVisible}" Opacity="{Binding OverlayOpacity}">
+            <Grid.Transitions>
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.5" Easing="CubicEaseOut"/>
+                </Transitions>
+            </Grid.Transitions>
+            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                <views:ImportProgressDialog />
+            </Grid>
         </Grid>
         
-        <!-- 单词表遮罩层和对话框 - 覆盖整个窗口包括标题栏 -->
-        <Grid Grid.Row="0" Grid.RowSpan="2"
-              Background="#80000000"
-              ZIndex="1001"
-              x:DataType="vm:MainViewModel"
-              IsVisible="{Binding IsWordListDialogVisible}"
-              Opacity="{Binding WordListOverlayOpacity}">
-          
-          <Grid.Transitions>
-            <Transitions>
-              <DoubleTransition Property="Opacity" 
-                               Duration="0:0:0.5" 
-                               Easing="CubicEaseOut"/>
-            </Transitions>
-          </Grid.Transitions>
-          
-          <Grid HorizontalAlignment="Center"
-                VerticalAlignment="Center">
-            <views:WordListDialog />
-          </Grid>
+        <!-- 单词表遮罩层 -->
+        <Grid Grid.Row="0" Grid.RowSpan="2" Background="#80000000" ZIndex="1001" x:DataType="vm:MainViewModel" IsVisible="{Binding IsWordListDialogVisible}" Opacity="{Binding WordListOverlayOpacity}">
+            <Grid.Transitions>
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.5" Easing="CubicEaseOut"/>
+                </Transitions>
+            </Grid.Transitions>
+            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                <views:WordListDialog />
+            </Grid>
         </Grid>
     </Grid>
 </Window>

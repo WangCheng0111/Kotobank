@@ -74,6 +74,15 @@
             </Transitions>
         </Setter>
     </Style>
+    <Style Selector="Button.custom-window-button.maximize-button:not(:pressed):not(:pointerover) /template/ Border#PART_Border">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background" Duration="0:0:0"/>
+            </Transitions>
+        </Setter>
+    </Style>
+
     
     <!-- 关闭按钮样式 -->
     <Style Selector="Button.custom-window-button.close-button:pointerover /template/ Border#PART_Border">
@@ -394,6 +403,98 @@
     <!-- 按下时仍保持透明背景 -->
     <Style Selector="Button.wordlist-delete-button:pressed /template/ Border#PART_Border">
         <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    
+    <!-- 控制按钮样式 - 保持透明背景，只保留原生按下动画 -->
+    <Style Selector="Button.control-button">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border x:Name="PART_Border"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        Padding="{TemplateBinding Padding}">
+                    <ContentPresenter Content="{TemplateBinding Content}"
+                                      ContentTemplate="{TemplateBinding ContentTemplate}"
+                                      HorizontalContentAlignment="Center"
+                                      VerticalContentAlignment="Center"/>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    
+    <!-- 悬停时仍保持透明背景 -->
+    <Style Selector="Button.control-button:pointerover /template/ Border#PART_Border">
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    
+    <!-- 按下时仍保持透明背景 -->
+    <Style Selector="Button.control-button:pressed /template/ Border#PART_Border">
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    
+    <!-- 进度条样式 -->
+    <Style Selector="ProgressBar.wordProgress">
+        <Setter Property="Height" Value="8"/>
+        <Setter Property="Foreground" Value="#666666"/>
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="Margin" Value="0,10,0,5"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="Transitions">
+            <Transitions>
+                <DoubleTransition Property="Value" 
+                                 Duration="0:0:0.8" 
+                                 Easing="CubicEaseOut"/>
+            </Transitions>
+        </Setter>
+    </Style>
+    
+    <!-- 页码样式 -->
+    <Style Selector="TextBlock.pageNumber">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="#666666"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+    </Style>
+    
+    <!-- Sheet按钮样式 - 保持和原来Border完全一致的外观 -->
+    <Style Selector="Button.sheet-button">
+        <Setter Property="Background" Value="#f8f9fa"/>
+        <Setter Property="BorderBrush" Value="#e9ecef"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="16,12"/>
+        <Setter Property="Margin" Value="0,0,0,12"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border x:Name="PART_Border"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{TemplateBinding CornerRadius}"
+                        Padding="{TemplateBinding Padding}"
+                        Margin="{TemplateBinding Margin}">
+                    <ContentPresenter Content="{TemplateBinding Content}"
+                                      ContentTemplate="{TemplateBinding ContentTemplate}"
+                                      HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      VerticalContentAlignment="Center"/>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    
+    <!-- 悬停时保持原有背景色 -->
+    <Style Selector="Button.sheet-button:pointerover /template/ Border#PART_Border">
+        <Setter Property="Background" Value="#f8f9fa"/>
+    </Style>
+    
+    <!-- 按下时保持原有背景色 -->
+    <Style Selector="Button.sheet-button:pressed /template/ Border#PART_Border">
+        <Setter Property="Background" Value="#f8f9fa"/>
     </Style>
 
 </Styles>

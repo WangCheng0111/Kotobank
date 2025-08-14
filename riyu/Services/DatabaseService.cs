@@ -7,6 +7,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Linq; // Added for OrderBy
 using System.Text.Json;
+using System.Runtime.InteropServices;
 
 namespace riyu.Services;
 
@@ -16,6 +17,12 @@ public class DatabaseService
     private readonly string _indexFilePath;
     private List<SheetInfo>? _cachedSheets;
     private DateTime _lastIndexUpdate = DateTime.MinValue;
+    
+    // Windows API for file operations
+    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    private static extern bool MoveFileEx(string lpExistingFileName, string lpNewFileName, int dwFlags);
+    
+    private const int MOVEFILE_DELAY_UNTIL_REBOOT = 0x4;
     
     public DatabaseService()
     {
@@ -269,8 +276,23 @@ public class DatabaseService
             
             if (Directory.Exists(wordTablesPath))
             {
-                // 释放所有SQLite连接池，避免数据库文件被占用
-                try { SqliteConnection.ClearAllPools(); } catch { }
+                // 强制释放所有SQLite连接池
+                try 
+                { 
+                    SqliteConnection.ClearAllPools(); 
+                } 
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"清理连接池时出错: {ex.Message}");
+                }
+
+                // 强制垃圾回收，确保所有DbContext被释放
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+
+                // 等待更长时间确保连接完全释放
+                System.Threading.Thread.Sleep(2000);
 
                 // 删除所有子文件夹（每个单词表一个文件夹）
                 var subDirectories = Directory.GetDirectories(wordTablesPath);
@@ -289,16 +311,34 @@ public class DatabaseService
                             {
                                 try
                                 {
+                                    // 设置文件属性为正常，移除只读等属性
                                     File.SetAttributes(path, FileAttributes.Normal);
+                                    
+                                    // 尝试删除文件
                                     File.Delete(path);
                                 }
                                 catch (Exception ex)
                                 {
                                     System.Diagnostics.Debug.WriteLine($"删除文件 {path} 时出错: {ex.Message}");
+                                    
+                                    // 如果删除失败，尝试延迟删除
+                                    try
+                                    {
+                                        if (OperatingSystem.IsWindows())
+                                        {
+                                            MoveFileEx(path, string.Empty, MOVEFILE_DELAY_UNTIL_REBOOT);
+                                            System.Diagnostics.Debug.WriteLine($"已设置延迟删除文件: {path}");
+                                        }
+                                    }
+                                    catch (Exception delayEx)
+                                    {
+                                        System.Diagnostics.Debug.WriteLine($"延迟删除文件 {path} 时出错: {delayEx.Message}");
+                                    }
                                 }
                             }
                         }
 
+                        // 按顺序删除文件
                         TryDeleteFile(walPath);
                         TryDeleteFile(shmPath);
                         TryDeleteFile(dbPath);
@@ -306,19 +346,56 @@ public class DatabaseService
                         // 尝试删除目录（包含其他文件）
                         try
                         {
+                            // 先尝试删除目录中的所有文件
+                            var files = Directory.GetFiles(dir, "*", SearchOption.AllDirectories);
+                            foreach (var file in files)
+                            {
+                                try
+                                {
+                                    File.SetAttributes(file, FileAttributes.Normal);
+                                    File.Delete(file);
+                                }
+                                catch (Exception fileEx)
+                                {
+                                    System.Diagnostics.Debug.WriteLine($"删除文件 {file} 时出错: {fileEx.Message}");
+                                    // 设置延迟删除
+                                    if (OperatingSystem.IsWindows())
+                                    {
+                                        try
+                                        {
+                                            MoveFileEx(file, string.Empty, MOVEFILE_DELAY_UNTIL_REBOOT);
+                                        }
+                                        catch { }
+                                    }
+                                }
+                            }
+                            
+                            // 然后删除目录
                             Directory.Delete(dir, true);
                         }
-                        catch
+                        catch (Exception ex)
                         {
-                            // 再清理一次连接池并重试一次
-                            try { SqliteConnection.ClearAllPools(); } catch { }
-                            System.Threading.Thread.Sleep(100);
-                            Directory.Delete(dir, true);
+                            System.Diagnostics.Debug.WriteLine($"删除文件夹 {dir} 时出错: {ex.Message}");
+                            
+                            // 如果删除失败，设置延迟删除
+                            if (OperatingSystem.IsWindows())
+                            {
+                                try
+                                {
+                                    MoveFileEx(dir, string.Empty, MOVEFILE_DELAY_UNTIL_REBOOT);
+                                    System.Diagnostics.Debug.WriteLine($"已设置延迟删除目录: {dir}");
+                                }
+                                catch (Exception delayEx)
+                                {
+                                    System.Diagnostics.Debug.WriteLine($"延迟删除目录 {dir} 时出错: {delayEx.Message}");
+                                }
+                            }
                         }
                     }
                     catch (Exception ex)
                     {
-                        System.Diagnostics.Debug.WriteLine($"删除文件夹 {dir} 时出错: {ex.Message}");
+                        System.Diagnostics.Debug.WriteLine($"处理文件夹 {dir} 时出错: {ex.Message}");
+                        // 不抛出异常，继续处理其他文件夹
                     }
                 }
                 
@@ -332,6 +409,7 @@ public class DatabaseService
                     catch (Exception ex)
                     {
                         System.Diagnostics.Debug.WriteLine($"删除索引文件时出错: {ex.Message}");
+                        // 索引文件删除失败不影响主要功能，不抛出异常
                     }
                 }
             }
@@ -357,6 +435,67 @@ public class DatabaseService
         catch
         {
             return false;
+        }
+    }
+
+    /// <summary>
+    /// 检查是否有任何单词表存在
+    /// </summary>
+    public async Task<bool> HasAnySheetsAsync()
+    {
+        var sheets = await GetAllSheetsAsync();
+        return sheets.Count > 0;
+    }
+
+    /// <summary>
+    /// 获取第一个sheet的第一个单词
+    /// </summary>
+    public async Task<Word?> GetFirstWordAsync()
+    {
+        try
+        {
+            var sheets = await GetAllSheetsAsync();
+            if (sheets.Count == 0)
+                return null;
+
+            var firstSheet = sheets[0];
+            var dbPath = Path.Combine(firstSheet.FolderPath, "words.db");
+            
+            if (!File.Exists(dbPath))
+                return null;
+
+            using var context = new WordDbContext(dbPath);
+            var firstWord = await context.Words.FirstOrDefaultAsync();
+            return firstWord;
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+    
+    /// <summary>
+    /// 根据sheet名称获取单词列表
+    /// </summary>
+    public List<Word> GetWordsBySheetName(string sheetName)
+    {
+        try
+        {
+            var sheetFolderName = SanitizeFileName(sheetName);
+            var sheetFolderPath = Path.Combine(_baseDataPath, "WordTables", sheetFolderName);
+            var dbPath = Path.Combine(sheetFolderPath, "words.db");
+            
+            if (!File.Exists(dbPath))
+                return new List<Word>();
+
+            using var context = new WordDbContext(dbPath);
+            var words = context.Words.ToList();
+            return words;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"获取sheet单词时出错: {ex.Message}");
+            return new List<Word>();
         }
     }
 }
