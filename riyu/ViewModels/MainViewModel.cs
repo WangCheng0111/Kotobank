@@ -34,6 +34,10 @@ public partial class MainViewModel : ViewModelBase
     // 界面状态控制
     [ObservableProperty] private bool _hasImportedData = false; // 是否有导入的数据
     [ObservableProperty] private bool _isInitialized = false; // 是否已初始化
+    [ObservableProperty] private bool _isLoadingData = true; // 是否正在加载数据
+    
+    // 计算属性：是否可以显示单词表按钮
+    public bool CanShowWordListButton => HasImportedData && !IsLoadingData;
     
     // 窗口控制按钮状态
     private string _maximizeButtonIcon = "\uE922"; // 最大化按钮图标
@@ -106,6 +110,8 @@ public partial class MainViewModel : ViewModelBase
     {
         try
         {
+            // 设置加载状态
+            IsLoadingData = true;
             // 检查是否有导入的单词表
             var hasSheets = await _databaseService.HasAnySheetsAsync();
             HasImportedData = hasSheets;
@@ -148,6 +154,7 @@ public partial class MainViewModel : ViewModelBase
         }
         finally
         {
+            IsLoadingData = false;
             IsInitialized = true;
         }
     }

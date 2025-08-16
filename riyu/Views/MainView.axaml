@@ -8,7 +8,8 @@
              x:Class="riyu.Views.MainView"
              x:DataType="vm:MainViewModel"
              Background="#fffaf7"
-             FontFamily="{DynamicResource HarmonyOSBold}">
+             FontFamily="{DynamicResource HarmonyOSBold}"
+             Focusable="True">
   <Design.DataContext>
     <!-- This only sets the DataContext for the previewer in an IDE,
          to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
@@ -16,11 +17,28 @@
   </Design.DataContext>
 
   <Grid>
+    <!-- 数据加载中指示器 -->
+    <StackPanel Spacing="16" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center"
+                IsVisible="{Binding IsLoadingData}">
+      <TextBlock Text="正在加载数据..."
+                 FontSize="16"
+                 Foreground="#666666"
+                 HorizontalAlignment="Center"
+                 FontFamily="{DynamicResource HarmonyOSRegular}"/>
+    </StackPanel>
+    
     <!-- 有导入数据时显示完整界面 -->
     <StackPanel Spacing="40" 
                 HorizontalAlignment="Center" 
-                VerticalAlignment="Center"
-                IsVisible="{Binding HasImportedData}">
+                VerticalAlignment="Center">
+      <StackPanel.IsVisible>
+        <MultiBinding Converter="{StaticResource AndBooleanConverter}">
+          <Binding Path="HasImportedData"/>
+          <Binding Path="IsLoadingData" Converter="{StaticResource InvertBooleanConverter}"/>
+        </MultiBinding>
+      </StackPanel.IsVisible>
         
         <!-- 中间内容区域 -->
         <StackPanel Spacing="16" 
@@ -122,7 +140,7 @@
           </StackPanel>
           
           <!-- 进度条和页码 - 使用Grid实现更好的布局 -->
-          <Grid Width="500" HorizontalAlignment="Center" Margin="0,10,0,0">
+          <Grid Width="{OnPlatform Default=500, Android=320}" HorizontalAlignment="Center" Margin="0,10,0,0">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
               <ColumnDefinition Width="Auto"/>
@@ -149,15 +167,21 @@
                 Command="{Binding SelectExcelFileCommand}"
                 Classes="import-button"
                 HorizontalAlignment="Center"
-                FontFamily="{DynamicResource HarmonyOSMedium}"/>
+                FontFamily="{DynamicResource HarmonyOSMedium}"
+                IsVisible="{Binding IsLoadingData, Converter={StaticResource InvertBooleanConverter}}"/>
         
     </StackPanel>
 
     <!-- 无导入数据时只显示导入界面 -->
     <StackPanel HorizontalAlignment="Center" 
                 VerticalAlignment="Center"
-                Spacing="40"
-                IsVisible="{Binding !HasImportedData}">
+                Spacing="40">
+      <StackPanel.IsVisible>
+        <MultiBinding Converter="{StaticResource AndBooleanConverter}">
+          <Binding Path="HasImportedData" Converter="{StaticResource InvertBooleanConverter}"/>
+          <Binding Path="IsLoadingData" Converter="{StaticResource InvertBooleanConverter}"/>
+        </MultiBinding>
+      </StackPanel.IsVisible>
         
         <!-- 欢迎标题 -->
         <StackPanel HorizontalAlignment="Center" 
@@ -181,11 +205,12 @@
                 Command="{Binding SelectExcelFileCommand}"
                 Classes="import-button"
                 HorizontalAlignment="Center"
-                FontFamily="{DynamicResource HarmonyOSMedium}"/>
+                FontFamily="{DynamicResource HarmonyOSMedium}"
+                IsVisible="{Binding IsLoadingData, Converter={StaticResource InvertBooleanConverter}}"/>
         
     </StackPanel>
 
-    <!-- 右下角单词表按钮 - 只在有数据时显示 -->
+    <!-- 右下角单词表按钮 - 只在有数据且非加载状态时显示 -->
     <Button Content="单词表"
             Classes="word-list-button"
             Command="{Binding ShowWordListDialogCommand}"

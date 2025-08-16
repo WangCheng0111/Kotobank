@@ -20,6 +20,8 @@
         <ResourceDictionary>
             <converters:MarginConverter x:Key="MarginConverter"/>
             <converters:IsZeroConverter x:Key="IsZeroConverter"/>
+            <converters:InvertBooleanConverter x:Key="InvertBooleanConverter"/>
+            <converters:AndBooleanConverter x:Key="AndBooleanConverter"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceInclude Source="/Resources/Colors.axaml"/>
                 <ResourceInclude Source="/Resources/Icons.axaml"/>
