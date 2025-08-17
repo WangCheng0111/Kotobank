@@ -52,15 +52,18 @@ public partial class MainViewModel : ViewModelBase
     
     // 进度控制
     [ObservableProperty] private double _progress = 0.0; // 进度值 0.0-1.0
-    [ObservableProperty] private string _pageDisplay = "0/20"; // 页码显示
+    [ObservableProperty] private string _pageDisplay = "0/0"; // 页码显示
     
     // 进度管理
     [ObservableProperty] private int _studyIndex = -1; // 已学习进度，从-1开始
     [ObservableProperty] private int _currentIndex = 0; // 当前单词索引
-    [ObservableProperty] private int _totalCount = 20; // 总单词数
+    [ObservableProperty] private int _totalCount = 0; // 总单词数
     
     // 词性标签可见性控制
     [ObservableProperty] private bool _isWordTypeVisible = true;
+    
+    // 听写完成状态控制
+    [ObservableProperty] private bool _isDictationCompleted = false; // 是否已完成听写
     
     // UI元素的属性
     [ObservableProperty] private string _chineseTranslation = string.Empty;
@@ -138,6 +141,7 @@ public partial class MainViewModel : ViewModelBase
                         StudyIndex = -1;
                         Progress = 0.0;
                         PageDisplay = $"0/{TotalCount}";
+                        IsDictationCompleted = false; // 重置听写完成状态
                         
                         // 存储单词列表供后续使用
                         _importedWords = words;
@@ -219,6 +223,59 @@ public partial class MainViewModel : ViewModelBase
         IsPlaying = !IsPlaying;
     }
     
+    // 确认答案命令
+    [RelayCommand]
+    private void ConfirmAnswer()
+    {
+        // 如果听写已完成，执行"再来一次"逻辑
+        if (IsDictationCompleted)
+        {
+            RestartDictation();
+            return;
+        }
+        
+        // 检查是否有当前单词
+        if (_importedWords.Count == 0 || CurrentIndex >= _importedWords.Count)
+        {
+            return;
+        }
+        
+        var currentWord = _importedWords[CurrentIndex];
+        
+        // 比较用户输入的日语单词与正确答案（忽略大小写和空格）
+        bool isCorrect = string.Equals(
+            JapaneseInput.Trim(), 
+            currentWord.Japanese.Trim(), 
+            StringComparison.OrdinalIgnoreCase
+        );
+        
+        if (isCorrect)
+        {
+            // 答案正确，进入下一个单词
+            NavigateToNextWord();
+        }
+        else
+        {
+            // 答案错误，清空输入框
+            JapaneseInput = string.Empty;
+        }
+    }
+    
+    // 重新开始听写
+    private void RestartDictation()
+    {
+        // 回到第一个单词
+        CurrentIndex = 0;
+        StudyIndex = -1;
+        Progress = 0.0;
+        PageDisplay = $"0/{TotalCount}";
+        JapaneseInput = string.Empty;
+        IsDictationCompleted = false;
+        
+        // 更新显示的单词内容
+        UpdateCurrentWordDisplay();
+    }
+    
     // 上一个单词命令
     [RelayCommand]
     private void NavigateToPreviousWord()
@@ -229,6 +286,9 @@ public partial class MainViewModel : ViewModelBase
             
         // 后退到上一个单词
         CurrentIndex--;
+        
+        // 清空日语输入框
+        JapaneseInput = string.Empty;
         
         // 更新显示的单词内容
         UpdateCurrentWordDisplay();
@@ -247,6 +307,9 @@ public partial class MainViewModel : ViewModelBase
             
         // 前进到下一个单词
         CurrentIndex++;
+        
+        // 清空日语输入框
+        JapaneseInput = string.Empty;
         
         // 更新显示的单词内容
         UpdateCurrentWordDisplay();
@@ -267,6 +330,7 @@ public partial class MainViewModel : ViewModelBase
                 ChineseTranslation = "你已完成此次听写";
                 WordType = string.Empty;
                 IsWordTypeVisible = false;
+                IsDictationCompleted = true; // 设置听写完成状态
             }
             else
             {
@@ -275,6 +339,7 @@ public partial class MainViewModel : ViewModelBase
                 ChineseTranslation = currentWord.Chinese;
                 WordType = string.IsNullOrEmpty(currentWord.PartOfSpeech) ? "未知" : currentWord.PartOfSpeech;
                 IsWordTypeVisible = true;
+                IsDictationCompleted = false; // 重置听写完成状态
             }
         }
     }
@@ -456,11 +521,11 @@ public partial class MainViewModel : ViewModelBase
                     }
                 }
                 
-                // 存储所有导入的单词
+                // 存储第一个sheet的单词（导入后默认显示第一个sheet）
                 _importedWords.Clear();
-                foreach (var sheetData in sheetsData)
+                if (sheetsData.Count > 0)
                 {
-                    _importedWords.AddRange(sheetData.Words);
+                    _importedWords.AddRange(sheetsData[0].Words);
                 }
                 
                 // 显示第一个单词的中文释义和词性（如果有的话）
@@ -474,6 +539,11 @@ public partial class MainViewModel : ViewModelBase
                 await Dispatcher.UIThread.InvokeAsync(() => 
                 {
                     HasImportedData = true;
+                    TotalCount = _importedWords.Count;  // 设置总单词数
+                    CurrentIndex = 0;                   // 设置当前索引为0
+                    StudyIndex = -1;                    // 设置学习进度为-1
+                    Progress = 0.0;                     // 设置进度条为0
+                    PageDisplay = $"0/{TotalCount}";    // 设置页码显示
                 });
                 
                 // 设置进度到100%
@@ -705,6 +775,7 @@ public partial class MainViewModel : ViewModelBase
                     StudyIndex = -1;
                     Progress = 0.0;
                     PageDisplay = $"0/{TotalCount}";
+                    IsDictationCompleted = false; // 重置听写完成状态
                     
                     // 存储单词列表供后续使用
                     _importedWords = words;

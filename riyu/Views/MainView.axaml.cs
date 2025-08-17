@@ -3,6 +3,7 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
+using Avalonia.Input;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -53,5 +54,21 @@ public partial class MainView : UserControl
     {
         base.OnUnloaded(e);
         _spinnerTimer?.Stop();
+    }
+    
+    // 处理日语输入框的KeyDown事件
+    private void OnJapaneseInputKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+        {
+            // 如果按下回车键，调用ViewModel的确认答案命令
+            if (DataContext is ViewModels.MainViewModel viewModel)
+            {
+                viewModel.ConfirmAnswerCommand.Execute(null);
+            }
+            
+            // 阻止事件继续传播
+            e.Handled = true;
+        }
     }
 }
