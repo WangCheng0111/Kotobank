@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace riyu.ViewModels;
@@ -406,29 +407,67 @@ public partial class MainViewModel : ViewModelBase
             return;
         }
         
-        var options = new FilePickerOpenOptions
+        FilePickerOpenOptions options;
+        if (Application.Current?.ApplicationLifetime is ISingleViewApplicationLifetime)
         {
-            Title = "选择Excel文件",
-            AllowMultiple = false,
-            FileTypeFilter = new List<FilePickerFileType>
+            // Android 平台：仅允许常见的 xlsx/xlsm MIME，避免 txt/yaml 被显示
+            options = new FilePickerOpenOptions
             {
-                new("Excel文件")
+                Title = "选择Excel文件",
+                AllowMultiple = false,
+                FileTypeFilter = new List<FilePickerFileType>
                 {
-                    Patterns = new[] { "*.xlsx", "*.xls" },
-                    MimeTypes = new[] { "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-excel" }
-                },
-                new("所有文件")
-                {
-                    Patterns = new[] { "*.*" }
+                    new("Excel 宏启用 (*.xlsm)")
+                    {
+                        MimeTypes = new[]
+                        {
+                            "application/vnd.ms-excel.sheet.macroEnabled.12",
+                            "application/vnd.ms-excel.sheet.macroenabled.12"
+                        }
+                    },
+                    new("Excel 工作簿 (*.xlsx)")
+                    {
+                        MimeTypes = new[]
+                        {
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                        }
+                    }
                 }
-            }
-        };
+            };
+        }
+        else
+        {
+            // 桌面平台：严格到 xlsx/xlsm
+            options = new FilePickerOpenOptions
+            {
+                Title = "选择Excel文件",
+                AllowMultiple = false,
+                FileTypeFilter = new List<FilePickerFileType>
+                {
+                    new("Excel文件")
+                    {
+                        Patterns = new[] { "*.xlsx", "*.xlsm" },
+                        MimeTypes = new[]
+                        {
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            "application/vnd.ms-excel.sheet.macroEnabled.12"
+                        }
+                    }
+                }
+            };
+        }
         
         var files = await topLevel.StorageProvider.OpenFilePickerAsync(options);
         
         if (files != null && files.Count > 0)
         {
             var selectedFile = files[0];
+            var ext = Path.GetExtension(selectedFile.Name)?.ToLowerInvariant();
+            if (ext != ".xlsx" && ext != ".xlsm")
+            {
+                await ShowMessageDialog("文件类型不支持", "仅支持导入 .xlsx 和 .xlsm 文件。");
+                return;
+            }
 
             // 设置对话框初始位置（在上方）和透明度
             DialogTranslateY = 200.0; // 保持200.0，但MarginConverter现在使用底部外边距，所以是从上方滑入

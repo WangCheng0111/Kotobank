@@ -1,0 +1,60 @@
+适合Windows系统语言为非中文：
+Private Sub Workbook_NewSheet(ByVal Sh As Object)
+    With Sh
+        ' 设置 A1 单元格
+        .Range("A1").Value = ChrW(&H5355) & ChrW(&H8BCD) ' 单词
+        .Range("A1").HorizontalAlignment = xlCenter
+        .Range("A1").Font.Bold = True
+        .Range("A1").Interior.Color = vbYellow
+
+        ' 设置 B1 单元格
+        .Range("B1").Value = ChrW(&H91CA) & ChrW(&H4E49) ' 释义
+        .Range("B1").HorizontalAlignment = xlCenter
+        .Range("B1").Font.Bold = True
+        .Range("B1").Interior.Color = vbYellow
+
+        ' 设置 C1 单元格
+        .Range("C1").Value = ChrW(&H8BCD) & ChrW(&H6027) ' 词性
+        .Range("C1").HorizontalAlignment = xlCenter
+        .Range("C1").Font.Bold = True
+        .Range("C1").Interior.Color = vbYellow
+
+        ' 设置 A、B、C 列宽（20 为示例宽度，可调整）
+        .Columns("A:C").ColumnWidth = 20
+
+        ' 冻结第一行
+        .Activate ' 激活工作表以应用冻结
+        ActiveWindow.SplitRow = 1
+        ActiveWindow.FreezePanes = True
+    End With
+End Sub
+适合Windows系统语言为非中文：
+Private Sub Workbook_NewSheet(ByVal Sh As Object)
+    With Sh
+        ' 设置 A1 单元格
+        .Range("A1").Value = "单词"
+        .Range("A1").HorizontalAlignment = xlCenter
+        .Range("A1").Font.Bold = True
+        .Range("A1").Interior.Color = vbYellow
+
+        ' 设置 B1 单元格
+        .Range("B1").Value = "释义"
+        .Range("B1").HorizontalAlignment = xlCenter
+        .Range("B1").Font.Bold = True
+        .Range("B1").Interior.Color = vbYellow
+
+        ' 设置 C1 单元格
+        .Range("C1").Value = "词性"
+        .Range("C1").HorizontalAlignment = xlCenter
+        .Range("C1").Font.Bold = True
+        .Range("C1").Interior.Color = vbYellow
+
+        ' 设置 A、B、C 列宽（20 为示例宽度，可调整）
+        .Columns("A:C").ColumnWidth = 20
+
+        ' 冻结第一行
+        .Activate ' 激活工作表以应用冻结
+        ActiveWindow.SplitRow = 1
+        ActiveWindow.FreezePanes = True
+    End With
+End Sub
