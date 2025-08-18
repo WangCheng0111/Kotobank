@@ -194,6 +194,27 @@
             </ControlTemplate>
         </Setter>
     </Style>
+
+    <!-- 确定按钮：基础缩放与过渡（套用到模板的 PART_Border 上） -->
+    <Style Selector="Button.confirm-button /template/ Border#PART_Border">
+        <Setter Property="RenderTransform">
+            <ScaleTransform ScaleX="1.0" ScaleY="1.0"/>
+        </Setter>
+        <Setter Property="Transitions">
+            <Transitions>
+                <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.08"/>
+                <BrushTransition Property="Background" Duration="0:0:0.08"/>
+            </Transitions>
+        </Setter>
+    </Style>
+
+    <!-- 确定按钮 - 手动按下态（通过添加类 manual-pressed 恢复按下视觉） -->
+    <Style Selector="Button.confirm-button.manual-pressed /template/ Border#PART_Border">
+        <Setter Property="Background" Value="#1f1f1f"/>
+        <Setter Property="RenderTransform">
+            <ScaleTransform ScaleX="0.97" ScaleY="0.97"/>
+        </Setter>
+    </Style>
     
     <!-- 导入Excel按钮样式 - 保持默认外观但保留按下动画 -->
     <Style Selector="Button.import-button">
@@ -485,4 +506,92 @@
         <Setter Property="Background" Value="#f8f9fa"/>
     </Style>
 
+    
+    
+    
+    <!--     ~1~ 确定按钮在下划线文本框也可以实现不失焦，和隧道实现是两种不同的方法 @1@ -->
+    <!-- <Style Selector="TextBox.underlineTextBox"> -->
+    <!--     <Setter Property="Background" Value="Transparent"/> -->
+    <!--     <Setter Property="BorderThickness" Value="0,0,0,2"/> -->
+    <!--     <Setter Property="BorderBrush" Value="#252525"/> -->
+    <!--     <Setter Property="Padding" Value="0,0,0,4"/> -->
+    <!--     <Setter Property="CornerRadius" Value="0"/> -->
+    <!--     <Setter Property="FontSize" Value="16"/> -->
+    <!--     <Setter Property="CaretBrush" Value="Black"/> -->
+    <!--     <Setter Property="SelectionBrush" Value="#AAAAAA"/> -->
+    <!--     <Setter Property="VerticalContentAlignment" Value="Center"/> -->
+    <!--     <Setter Property="HorizontalContentAlignment" Value="Center"/> -->
+    <!--     <Setter Property="TextAlignment" Value="Center"/> -->
+    <!--     <Setter Property="MinHeight" Value="30"/> -->
+    <!--     <Setter Property="Cursor" Value="IBeam"/> -->
+    <!--     <Setter Property="Template"> -->
+    <!--         <ControlTemplate> -->
+    <!--             <Grid RowDefinitions="Auto,*"> -->
+    <!--                 ~1~ 上方“确定”按钮（不可聚焦），与文本区域有间距 @1@ -->
+    <!--                 <Button Grid.Row="0" -->
+    <!--                         x:Name="PART_ConfirmButton" -->
+    <!--                         Focusable="False" -->
+    <!--                         IsTabStop="False" -->
+    <!--                         Margin="0,0,0,52" -->
+    <!--                         Background="#2d2d2d" -->
+    <!--                         Foreground="White" -->
+    <!--                         Height="28" -->
+    <!--                         MinWidth="68" -->
+    <!--                         HorizontalAlignment="Center" -->
+    <!--                         VerticalAlignment="Center" -->
+    <!--                         Padding="10,0"> -->
+    <!--                     <StackPanel Orientation="Horizontal" -->
+    <!--                                 Spacing="4" -->
+    <!--                                 HorizontalAlignment="Center" -->
+    <!--                                 VerticalAlignment="Center"> -->
+    <!--                         <TextBlock Text="确定" -->
+    <!--                                    FontSize="14" -->
+    <!--                                    FontWeight="Medium"/> -->
+    <!--                         <Image Source="{StaticResource ConfirmIcon}" -->
+    <!--                                Width="12" Height="12" -->
+    <!--                                Stretch="Uniform" -->
+    <!--                                Margin="2,-1,0,0"/> -->
+    <!--                     </StackPanel> -->
+    <!--                 </Button> -->
+    <!-- -->
+    <!--                 ~1~ 下方文本区域（下划线文本框视觉） @1@ -->
+    <!--                 <Border Grid.Row="1" -->
+    <!--                         Background="{TemplateBinding Background}" -->
+    <!--                         BorderBrush="{TemplateBinding BorderBrush}" -->
+    <!--                         BorderThickness="{TemplateBinding BorderThickness}" -->
+    <!--                         CornerRadius="{TemplateBinding CornerRadius}" -->
+    <!--                         Padding="{TemplateBinding Padding}"> -->
+    <!--                     <ScrollViewer HorizontalScrollBarVisibility="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility)}" -->
+    <!--                                   VerticalScrollBarVisibility="{TemplateBinding (ScrollViewer.VerticalScrollBarVisibility)}"> -->
+    <!--                         <Panel> -->
+    <!--                             <TextBlock Name="PART_Watermark" -->
+    <!--                                        Text="{TemplateBinding Watermark}" -->
+    <!--                                        IsVisible="{TemplateBinding Text, Converter={x:Static StringConverters.IsNullOrEmpty}}" -->
+    <!--                                        Foreground="{TemplateBinding Foreground}" -->
+    <!--                                        Opacity="0.5" -->
+    <!--                                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}" -->
+    <!--                                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" -->
+    <!--                                        TextAlignment="{TemplateBinding TextAlignment}"/> -->
+    <!--                             <TextPresenter Name="PART_TextPresenter" -->
+    <!--                                           Text="{TemplateBinding Text, Mode=TwoWay}" -->
+    <!--                                           CaretIndex="{TemplateBinding CaretIndex}" -->
+    <!--                                           SelectionStart="{TemplateBinding SelectionStart}" -->
+    <!--                                           SelectionEnd="{TemplateBinding SelectionEnd}" -->
+    <!--                                           TextAlignment="{TemplateBinding TextAlignment}" -->
+    <!--                                           TextWrapping="{TemplateBinding TextWrapping}" -->
+    <!--                                           PasswordChar="{TemplateBinding PasswordChar}" -->
+    <!--                                           RevealPassword="{TemplateBinding RevealPassword}" -->
+    <!--                                           SelectionBrush="{TemplateBinding SelectionBrush}" -->
+    <!--                                           SelectionForegroundBrush="{TemplateBinding SelectionForegroundBrush}" -->
+    <!--                                           CaretBrush="{TemplateBinding CaretBrush}" -->
+    <!--                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}" -->
+    <!--                                           HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/> -->
+    <!--                         </Panel> -->
+    <!--                     </ScrollViewer> -->
+    <!--                 </Border> -->
+    <!--             </Grid> -->
+    <!--         </ControlTemplate> -->
+    <!--     </Setter> -->
+    <!-- </Style> -->
+    <!-- -->
 </Styles>

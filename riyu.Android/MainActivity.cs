@@ -4,6 +4,9 @@ using Android.OS;
 using Android.Views;
 using Avalonia;
 using Avalonia.Android;
+using Microsoft.Extensions.DependencyInjection;
+using riyu.Services.Keyboard;
+using riyu.Android.Keyboard;
 
 namespace riyu.Android;
 
@@ -15,9 +18,12 @@ namespace riyu.Android;
     ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.ScreenSize | ConfigChanges.UiMode)]
 public class MainActivity : AvaloniaMainActivity<App>
 {
+    public static Activity? CurrentActivity { get; private set; }
+
     protected override void OnCreate(Bundle? savedInstanceState)
     {
         base.OnCreate(savedInstanceState);
+        CurrentActivity = this;
         
         // 智能适配：根据系统类型选择不同的透明实现方式
         if (Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop)
@@ -46,10 +52,21 @@ public class MainActivity : AvaloniaMainActivity<App>
         // }
     }
 
+    protected override void OnResume()
+    {
+        base.OnResume();
+        CurrentActivity = this;
+    }
+
     protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
     {
         return base.CustomizeAppBuilder(builder)
-            .WithInterFont();
+            .WithInterFont()
+            .AfterSetup(_ =>
+            {
+                // 简单服务定位器注册
+                ServiceLocator.Register<IKeyboardService>(new AndroidKeyboardService());
+            });
     }
     
     /// <summary>

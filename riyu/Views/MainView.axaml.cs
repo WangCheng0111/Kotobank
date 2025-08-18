@@ -4,9 +4,11 @@ using Avalonia.Threading;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
 using Avalonia.Input;
+using Avalonia.Styling;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using riyu.Services.Keyboard;
 
 namespace riyu.Views;
 
@@ -14,11 +16,14 @@ public partial class MainView : UserControl
 {
     private DispatcherTimer? _spinnerTimer;
     private double _currentAngle = 0;
+    private Button? _confirmButton;
+    private TextBox? _japaneseTextBox;
     
     public MainView()
     {
         InitializeComponent();
         InitializeSpinner();
+        HookConfirmWithoutLosingFocus();
     }
     
     private void InitializeSpinner()
@@ -69,6 +74,66 @@ public partial class MainView : UserControl
             
             // 阻止事件继续传播
             e.Handled = true;
+        }
+    }
+
+    private void HookConfirmWithoutLosingFocus()
+    {
+        _confirmButton = this.FindControl<Button>("ConfirmButton");
+        _japaneseTextBox = this.FindControl<TextBox>("JapaneseTextBox");
+
+        if (_confirmButton != null)
+        {
+            _confirmButton.AddHandler(InputElement.PointerPressedEvent, OnConfirmPointerPressed, RoutingStrategies.Tunnel);
+            _confirmButton.AddHandler(InputElement.PointerReleasedEvent, OnConfirmPointerReleased, RoutingStrategies.Bubble);
+            _confirmButton.AddHandler(InputElement.PointerCaptureLostEvent, OnConfirmPointerCaptureLost, RoutingStrategies.Bubble);
+        }
+
+        if (_japaneseTextBox != null)
+        {
+            _japaneseTextBox.AddHandler(InputElement.PointerPressedEvent, OnTextBoxPointerPressed, RoutingStrategies.Tunnel);
+        }
+    }
+
+    private void OnConfirmPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        // 隧道阶段拦截，防止 FocusManager 抢焦点
+        e.Handled = true;
+
+        // 手动设置按下类以恢复按下视觉（通过样式匹配）
+        _confirmButton?.Classes.Add("manual-pressed");
+
+        // 手动执行命令
+        if (DataContext is ViewModels.MainViewModel viewModel)
+        {
+            if (viewModel.ConfirmAnswerCommand.CanExecute(null))
+            {
+                viewModel.ConfirmAnswerCommand.Execute(null);
+            }
+        }
+
+        // 将焦点保持/返回到文本框
+        _japaneseTextBox?.Focus();
+    }
+
+    private void OnConfirmPointerReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        _confirmButton?.Classes.Remove("manual-pressed");
+        // 释放时保证焦点仍在文本框
+        _japaneseTextBox?.Focus();
+    }
+
+    private void OnConfirmPointerCaptureLost(object? sender, PointerCaptureLostEventArgs e)
+    {
+        _confirmButton?.Classes.Remove("manual-pressed");
+    }
+
+    private void OnTextBoxPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        // 在 Android 上，如果文本框已有焦点但系统软键盘被手动隐藏，则再次点击时强制弹出键盘
+        if (_japaneseTextBox?.IsFocused == true)
+        {
+            ServiceLocator.Resolve<IKeyboardService>()?.Show();
         }
     }
 }

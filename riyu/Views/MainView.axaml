@@ -76,6 +76,7 @@
           
           <!-- 确定按钮 -->
           <Button Classes="confirm-button"
+                  x:Name="ConfirmButton"
                   Command="{Binding ConfirmAnswerCommand}"
                   HorizontalAlignment="Center"
                   FontFamily="{DynamicResource HarmonyOSMedium}"
@@ -113,6 +114,7 @@
           
           <!-- 输入框 -->
           <TextBox Text="{Binding JapaneseInput}"
+                   x:Name="JapaneseTextBox"
                    Watermark="输入日语单词..."
                    Classes="underlineTextBox"
                    Width="{OnPlatform Default=400, Android=300}"
