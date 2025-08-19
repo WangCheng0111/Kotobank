@@ -56,7 +56,7 @@
             <TextBlock Text="{Binding ChineseTranslation}"
                        FontSize="32"
                        FontWeight="Bold"
-                       Foreground="#2d2d2d"
+                       Foreground="{Binding ChineseTranslationBrush}"
                        FontFamily="{DynamicResource HarmonyOSBold}"
                        VerticalAlignment="Center"/>
             
@@ -78,6 +78,7 @@
           <Button Classes="confirm-button"
                   x:Name="ConfirmButton"
                   Command="{Binding ConfirmAnswerCommand}"
+                  CommandParameter="{Binding JapaneseInput}"
                   HorizontalAlignment="Center"
                   FontFamily="{DynamicResource HarmonyOSMedium}"
                   Margin="0,-70,0,0">
@@ -132,7 +133,8 @@
             <Button Width="40" 
                     Height="40" 
                     Classes="control-button"
-                    Command="{Binding NavigateToPreviousWordCommand}">
+                    Command="{Binding NavigateToPreviousWordCommand}"
+                    IsEnabled="{Binding IsPlaying, Converter={StaticResource InvertBooleanConverter}}">
               <PathIcon Data="{StaticResource ShangyigeIcon}" 
                         Width="24" 
                         Height="24" 
@@ -164,7 +166,8 @@
             <Button Width="40" 
                     Height="40" 
                     Classes="control-button"
-                    Command="{Binding NavigateToNextWordCommand}">
+                    Command="{Binding NavigateToNextWordCommand}"
+                    IsEnabled="{Binding IsPlaying, Converter={StaticResource InvertBooleanConverter}}">
               <PathIcon Data="{StaticResource XiayigeIcon}" 
                         Width="24" 
                         Height="24" 
@@ -184,7 +187,8 @@
             <ProgressBar Grid.Column="0"
                          Value="{Binding Progress}" 
                          Maximum="1.0"
-                         Classes="wordProgress"/>
+                         Classes="wordProgress"
+                         Foreground="{Binding ProgressBarBrush}"/>
             
             <!-- 页码 - 第二列 -->
             <TextBlock Grid.Column="1"

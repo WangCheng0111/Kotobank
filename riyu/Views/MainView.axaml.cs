@@ -69,7 +69,14 @@ public partial class MainView : UserControl
             // 如果按下回车键，调用ViewModel的确认答案命令
             if (DataContext is ViewModels.MainViewModel viewModel)
             {
-                viewModel.ConfirmAnswerCommand.Execute(null);
+                if (sender is TextBox tb)
+                {
+                    viewModel.ConfirmAnswerCommand.Execute(tb.Text);
+                }
+                else
+                {
+                    viewModel.ConfirmAnswerCommand.Execute(_japaneseTextBox?.Text);
+                }
             }
             
             // 阻止事件继续传播
@@ -102,23 +109,21 @@ public partial class MainView : UserControl
 
         // 手动设置按下类以恢复按下视觉（通过样式匹配）
         _confirmButton?.Classes.Add("manual-pressed");
-
-        // 手动执行命令
-        if (DataContext is ViewModels.MainViewModel viewModel)
-        {
-            if (viewModel.ConfirmAnswerCommand.CanExecute(null))
-            {
-                viewModel.ConfirmAnswerCommand.Execute(null);
-            }
-        }
-
-        // 将焦点保持/返回到文本框
-        _japaneseTextBox?.Focus();
+        // 不在 PointerPressed 执行命令；等待 PointerReleased 再执行，确保 Android IME 已提交
     }
 
     private void OnConfirmPointerReleased(object? sender, PointerReleasedEventArgs e)
     {
         _confirmButton?.Classes.Remove("manual-pressed");
+        // 在释放阶段执行命令，传入当前文本（避免 Android 上 IME 未提交问题）
+        if (DataContext is ViewModels.MainViewModel viewModel)
+        {
+            var parameter = _japaneseTextBox?.Text;
+            if (viewModel.ConfirmAnswerCommand.CanExecute(parameter))
+            {
+                viewModel.ConfirmAnswerCommand.Execute(parameter);
+            }
+        }
         // 释放时保证焦点仍在文本框
         _japaneseTextBox?.Focus();
     }

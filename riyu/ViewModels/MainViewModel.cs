@@ -12,6 +12,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.IO;
 using System.Threading.Tasks;
+using Avalonia.Media;
 
 namespace riyu.ViewModels;
 
@@ -50,6 +51,9 @@ public partial class MainViewModel : ViewModelBase
     
     // 播放状态控制
     [ObservableProperty] private bool _isPlaying = false; // 是否正在播放
+    // 播放相关配色（进度条、中文释义）
+    [ObservableProperty] private IBrush _progressBarBrush = new SolidColorBrush(Color.Parse("#666666"));
+    [ObservableProperty] private IBrush _chineseTranslationBrush = new SolidColorBrush(Color.Parse("#2d2d2d"));
     
     // 进度控制
     [ObservableProperty] private double _progress = 0.0; // 进度值 0.0-1.0
@@ -222,42 +226,65 @@ public partial class MainViewModel : ViewModelBase
     private void TogglePlay()
     {
         IsPlaying = !IsPlaying;
+        if (IsPlaying)
+        {
+            // 播放时进度条变红；中文释义先保持默认，等待校验后再变色
+            ProgressBarBrush = new SolidColorBrush(Colors.Red);
+            ChineseTranslationBrush = new SolidColorBrush(Color.Parse("#2d2d2d"));
+        }
+        else
+        {
+            // 暂停时恢复默认
+            ProgressBarBrush = new SolidColorBrush(Color.Parse("#666666"));
+            ChineseTranslationBrush = new SolidColorBrush(Color.Parse("#2d2d2d"));
+        }
     }
     
     // 确认答案命令
     [RelayCommand]
-    private void ConfirmAnswer()
+    private void ConfirmAnswer(string? inputFromView)
     {
-        // 如果听写已完成，执行"再来一次"逻辑
-        if (IsDictationCompleted)
+        // 如果听写已完成，执行"再来一次"逻辑（暂停模式维持原行为，播放模式下也允许重来）
+        if (IsDictationCompleted && !IsPlaying)
         {
             RestartDictation();
             return;
         }
-        
+
         // 检查是否有当前单词
         if (_importedWords.Count == 0 || CurrentIndex >= _importedWords.Count)
         {
             return;
         }
-        
+
         var currentWord = _importedWords[CurrentIndex];
-        
+
+        // 使用来自视图的即时文本（Android 上确保包含 IME 合成），回退到绑定值
+        var actualInput = (inputFromView ?? JapaneseInput) ?? string.Empty;
         // 比较用户输入的日语单词与正确答案（忽略大小写和空格）
         bool isCorrect = string.Equals(
-            JapaneseInput.Trim(), 
-            currentWord.Japanese.Trim(), 
+            actualInput.Trim(),
+            currentWord.Japanese.Trim(),
             StringComparison.OrdinalIgnoreCase
         );
-        
+
+        if (IsPlaying)
+        {
+            // 播放模式：仅校验并变色，不跳转；始终清空输入
+            ChineseTranslationBrush = isCorrect
+                ? new SolidColorBrush(Colors.Green)
+                : new SolidColorBrush(Colors.Red);
+            JapaneseInput = string.Empty;
+            return;
+        }
+
+        // 暂停模式：沿用原逻辑
         if (isCorrect)
         {
-            // 答案正确，进入下一个单词
             NavigateToNextWord();
         }
         else
         {
-            // 答案错误，清空输入框
             JapaneseInput = string.Empty;
         }
     }
@@ -332,6 +359,8 @@ public partial class MainViewModel : ViewModelBase
                 WordType = string.Empty;
                 IsWordTypeVisible = false;
                 IsDictationCompleted = true; // 设置听写完成状态
+                // 显示完成时，中文释义颜色恢复为默认
+                ChineseTranslationBrush = new SolidColorBrush(Color.Parse("#2d2d2d"));
             }
             else
             {
@@ -341,6 +370,8 @@ public partial class MainViewModel : ViewModelBase
                 WordType = string.IsNullOrEmpty(currentWord.PartOfSpeech) ? "未知" : currentWord.PartOfSpeech;
                 IsWordTypeVisible = true;
                 IsDictationCompleted = false; // 重置听写完成状态
+                // 切换单词时恢复默认颜色（暂停模式完全保持旧体验；播放模式下等待校验再变色）
+                ChineseTranslationBrush = new SolidColorBrush(Color.Parse("#2d2d2d"));
             }
         }
     }
