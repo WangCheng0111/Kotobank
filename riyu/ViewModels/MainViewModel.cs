@@ -32,6 +32,9 @@ public partial class MainViewModel : ViewModelBase
     
     // 窗口边距属性 - 用于窗口最大化时的边距调整
     [ObservableProperty] private Thickness _windowPadding = new Thickness(0);
+        
+    // 窗口激活状态 - 用于控制标题栏按钮颜色
+    [ObservableProperty] private bool _isActive = true;
     
     // 界面状态控制
     [ObservableProperty] private bool _hasImportedData = false; // 是否有导入的数据
