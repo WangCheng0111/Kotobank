@@ -29,23 +29,23 @@
         <Grid Grid.Row="1">
             <views:MainView />
         </Grid>
-        
+
         <!-- 窗口控制按钮 -->
         <StackPanel Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" ZIndex="10" Orientation="Horizontal">
             <Button Width="45" Height="36" x:Name="MinimizeButton" Classes="custom-window-button minimize-button" BorderThickness="0" Padding="0" Command="{Binding MinimizeWindowCommand}">
-                <TextBlock Text="&#xE921;" FontFamily="{StaticResource SegoeFluentIcons}" FontSize="10" Foreground="{Binding IsActive, Converter={StaticResource IsActiveToForegroundConverter}}" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False"/>
+                <TextBlock Text="&#xE921;" FontFamily="{StaticResource SegoeFluentIcons}" FontSize="10" Classes="window-control-button-text" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False"/>
             </Button>
 
             <!-- 最大化/还原按钮 -->
             <Button Width="45" Height="36" x:Name="MaximizeButton" Classes="custom-window-button maximize-button" BorderThickness="0" Padding="0" Command="{Binding MaximizeWindowCommand}">
-                <TextBlock Text="{Binding MaximizeButtonIcon}" x:Name="MaximizeIcon" FontFamily="{StaticResource SegoeFluentIcons}" FontSize="10" Foreground="{Binding IsActive, Converter={StaticResource IsActiveToForegroundConverter}}" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False"/>
+                <TextBlock Text="{Binding MaximizeButtonIcon}" x:Name="MaximizeIcon" FontFamily="{StaticResource SegoeFluentIcons}" FontSize="10" Classes="window-control-button-text" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False"/>
             </Button>
 
             <Button Width="45" Height="36" x:Name="CloseButton" Classes="custom-window-button close-button" BorderThickness="0" Padding="0" Command="{Binding CloseWindowCommand}">
-                <TextBlock Text="&#xE8BB;" FontFamily="{StaticResource SegoeFluentIcons}" FontSize="10" Classes="close-button-text" Foreground="{Binding IsActive, Converter={StaticResource IsActiveToCloseButtonForegroundConverter}}" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False"/>
+                <TextBlock Text="&#xE8BB;" FontFamily="{StaticResource SegoeFluentIcons}" FontSize="10" Classes="close-button-text" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False"/>
             </Button>
         </StackPanel>
-        
+
         <!-- 导入进度遮罩层 -->
         <Grid Grid.Row="0" Grid.RowSpan="2" Background="#80000000" ZIndex="1000" x:DataType="vm:MainViewModel" IsVisible="{Binding IsImportDialogVisible}" Opacity="{Binding OverlayOpacity}">
             <Grid.Transitions>
@@ -57,7 +57,7 @@
                 <views:ImportProgressDialog />
             </Grid>
         </Grid>
-        
+
         <!-- 单词表遮罩层 -->
         <Grid Grid.Row="0" Grid.RowSpan="2" Background="#80000000" ZIndex="1001" x:DataType="vm:MainViewModel" IsVisible="{Binding IsWordListDialogVisible}" Opacity="{Binding WordListOverlayOpacity}">
             <Grid.Transitions>

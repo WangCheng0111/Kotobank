@@ -1,8 +1,8 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    
+
     <!-- 窗口控制按钮样式 -->
-    
+
     <!-- 窗口控制按钮基础样式 - 使用自定义控件模板完全控制 -->
     <Style Selector="Button.custom-window-button">
         <Setter Property="RenderTransform">
@@ -25,14 +25,14 @@
             </ControlTemplate>
         </Setter>
     </Style>
-    
+
     <!-- 禁用按下状态的缩放效果 -->
     <Style Selector="Button.custom-window-button:pressed">
         <Setter Property="RenderTransform">
             <ScaleTransform ScaleX="1.0" ScaleY="1.0"/>
         </Setter>
     </Style>
-    
+
     <!-- 最小化按钮样式 -->
     <Style Selector="Button.custom-window-button.minimize-button:pointerover /template/ Border#PART_Border">
         <Setter Property="Background" Value="#d9dde2"/>
@@ -53,7 +53,30 @@
             </Transitions>
         </Setter>
     </Style>
-    
+
+    <!-- 最小化/最大化按钮文字样式（窗口激活/失焦） -->
+    <Style Selector="TextBlock.window-control-button-text">
+        <Setter Property="Foreground" Value="#2d2d2d"/>
+    </Style>
+
+    <Style Selector="Window[IsActive=true] Button.custom-window-button.minimize-button TextBlock.window-control-button-text">
+        <Setter Property="Foreground" Value="#2d2d2d"/>
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Foreground" Duration="0:0:0.2"/>
+            </Transitions>
+        </Setter>
+    </Style>
+
+    <Style Selector="Window[IsActive=false] Button.custom-window-button.minimize-button TextBlock.window-control-button-text">
+        <Setter Property="Foreground" Value="#a0a0a0"/>
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Foreground" Duration="0:0:0.2"/>
+            </Transitions>
+        </Setter>
+    </Style>
+
     <!-- 最大化按钮样式 -->
     <Style Selector="Button.custom-window-button.maximize-button:pointerover /template/ Border#PART_Border">
         <Setter Property="Background" Value="#d9dde2"/>
@@ -74,6 +97,25 @@
             </Transitions>
         </Setter>
     </Style>
+
+    <!-- 最大化按钮文字样式（窗口激活/失焦） -->
+    <Style Selector="Window[IsActive=true] Button.custom-window-button.maximize-button TextBlock.window-control-button-text">
+        <Setter Property="Foreground" Value="#2d2d2d"/>
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Foreground" Duration="0:0:0.2"/>
+            </Transitions>
+        </Setter>
+    </Style>
+
+    <Style Selector="Window[IsActive=false] Button.custom-window-button.maximize-button TextBlock.window-control-button-text">
+        <Setter Property="Foreground" Value="#a0a0a0"/>
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Foreground" Duration="0:0:0.2"/>
+            </Transitions>
+        </Setter>
+    </Style>
     <!-- <Style Selector="Button.custom-window-button.maximize-button:not(:pressed):not(:pointerover) /template/ Border#PART_Border"> -->
     <!--     <Setter Property="Background" Value="Transparent"/> -->
     <!--     <Setter Property="Transitions"> -->
@@ -83,7 +125,7 @@
     <!--     </Setter> -->
     <!-- </Style> -->
 
-    
+
     <!-- 关闭按钮样式 -->
     <Style Selector="Button.custom-window-button.close-button:pointerover /template/ Border#PART_Border">
         <Setter Property="Background" Value="#e81123"/>
@@ -104,9 +146,14 @@
             </Transitions>
         </Setter>
     </Style>
-    
+
     <!-- 关闭按钮文字样式 -->
     <Style Selector="TextBlock.close-button-text">
+        <Setter Property="Foreground" Value="#2d2d2d"/>
+    </Style>
+
+    <!-- 窗口聚焦时关闭按钮图标保持默认深色 -->
+    <Style Selector="Window[IsActive=true] Button.custom-window-button.close-button TextBlock.close-button-text">
         <Setter Property="Foreground" Value="#2d2d2d"/>
         <Setter Property="Transitions">
             <Transitions>
@@ -114,11 +161,26 @@
             </Transitions>
         </Setter>
     </Style>
-    
+
+    <!-- 窗口失焦时关闭按钮图标淡化 -->
+    <Style Selector="Window[IsActive=false] Button.custom-window-button.close-button TextBlock.close-button-text">
+        <Setter Property="Foreground" Value="#a0a0a0"/>
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Foreground" Duration="0:0:0.2"/>
+            </Transitions>
+        </Setter>
+    </Style>
+
     <Style Selector="Button.custom-window-button.close-button:pointerover TextBlock.close-button-text">
         <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Foreground" Duration="0:0:0"/>
+            </Transitions>
+        </Setter>
     </Style>
-    
+
     <Style Selector="Button.custom-window-button.close-button:pressed:pointerover TextBlock.close-button-text">
         <Setter Property="Foreground" Value="White"/>
         <Setter Property="Transitions">
@@ -127,7 +189,7 @@
             </Transitions>
         </Setter>
     </Style>
-    
+
     <Style Selector="Button.custom-window-button.close-button:pressed:not(:pointerover) TextBlock.close-button-text">
         <Setter Property="Foreground" Value="#2d2d2d"/>
         <Setter Property="Transitions">
@@ -136,7 +198,7 @@
             </Transitions>
         </Setter>
     </Style>
-    
+
     <!-- 单词表按钮样式 - 使用自定义模板完全控制样式 -->
     <Style Selector="Button.word-list-button">
         <Setter Property="Background" Value="Transparent"/>
@@ -167,7 +229,7 @@
             </ControlTemplate>
         </Setter>
     </Style>
-    
+
     <!-- 确定按钮样式 - 动态内容 -->
     <Style Selector="Button.confirm-button">
         <Setter Property="Background" Value="#2d2d2d"/>
@@ -215,7 +277,7 @@
             <ScaleTransform ScaleX="0.97" ScaleY="0.97"/>
         </Setter>
     </Style>
-    
+
     <!-- 导入Excel按钮样式 - 保持默认外观但保留按下动画 -->
     <Style Selector="Button.import-button">
         <Setter Property="Background" Value="#007ACC"/>
@@ -243,7 +305,7 @@
             </ControlTemplate>
         </Setter>
     </Style>
-    
+
     <!-- 下划线文本框样式 -->
     <Style Selector="TextBox.underlineTextBox">
         <Setter Property="Background" Value="Transparent"/>
@@ -299,28 +361,28 @@
             </ControlTemplate>
         </Setter>
     </Style>
-    
+
     <!-- 下划线文本框聚焦时样式 - 保持相同样式 -->
     <Style Selector="TextBox.underlineTextBox:focus">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0,0,0,2"/>
         <Setter Property="BorderBrush" Value="#252525"/>
     </Style>
-    
+
     <!-- 下划线文本框指针悬停时样式 - 保持相同样式 -->
     <Style Selector="TextBox.underlineTextBox:pointerover">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0,0,0,2"/>
         <Setter Property="BorderBrush" Value="#252525"/>
     </Style>
-    
+
     <!-- 下划线文本框聚焦且指针悬停时样式 - 保持相同样式 -->
     <Style Selector="TextBox.underlineTextBox:focus:pointerover">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0,0,0,2"/>
         <Setter Property="BorderBrush" Value="#252525"/>
     </Style>
-    
+
     <!-- 对话框关闭按钮样式 - 悬停/按下背景保持透明 -->
     <Style Selector="Button.wordlist-close-button">
         <Setter Property="Background" Value="Transparent"/>
@@ -341,17 +403,17 @@
             </ControlTemplate>
         </Setter>
     </Style>
-    
+
     <!-- 悬停时仍保持透明背景 -->
     <Style Selector="Button.wordlist-close-button:pointerover /template/ Border#PART_Border">
         <Setter Property="Background" Value="Transparent"/>
     </Style>
-    
+
     <!-- 按下时仍保持透明背景 -->
     <Style Selector="Button.wordlist-close-button:pressed /template/ Border#PART_Border">
         <Setter Property="Background" Value="Transparent"/>
     </Style>
-    
+
     <!-- 刷新按钮样式 - 无悬停和按下动画 -->
     <Style Selector="Button.wordlist-refresh-button">
         <Setter Property="Background" Value="Transparent"/>
@@ -372,17 +434,17 @@
             </ControlTemplate>
         </Setter>
     </Style>
-    
+
     <!-- 悬停时仍保持透明背景 -->
     <Style Selector="Button.wordlist-refresh-button:pointerover /template/ Border#PART_Border">
         <Setter Property="Background" Value="Transparent"/>
     </Style>
-    
+
     <!-- 按下时仍保持透明背景 -->
     <Style Selector="Button.wordlist-refresh-button:pressed /template/ Border#PART_Border">
         <Setter Property="Background" Value="Transparent"/>
     </Style>
-    
+
     <!-- 删除按钮样式 - 无悬停和按下动画 -->
     <Style Selector="Button.wordlist-delete-button">
         <Setter Property="Background" Value="Transparent"/>
@@ -403,17 +465,17 @@
             </ControlTemplate>
         </Setter>
     </Style>
-    
+
     <!-- 悬停时仍保持透明背景 -->
     <Style Selector="Button.wordlist-delete-button:pointerover /template/ Border#PART_Border">
         <Setter Property="Background" Value="Transparent"/>
     </Style>
-    
+
     <!-- 按下时仍保持透明背景 -->
     <Style Selector="Button.wordlist-delete-button:pressed /template/ Border#PART_Border">
         <Setter Property="Background" Value="Transparent"/>
     </Style>
-    
+
     <!-- 控制按钮样式 - 保持透明背景，只保留原生按下动画 -->
     <Style Selector="Button.control-button">
         <Setter Property="Background" Value="Transparent"/>
@@ -434,17 +496,17 @@
             </ControlTemplate>
         </Setter>
     </Style>
-    
+
     <!-- 悬停时仍保持透明背景 -->
     <Style Selector="Button.control-button:pointerover /template/ Border#PART_Border">
         <Setter Property="Background" Value="Transparent"/>
     </Style>
-    
+
     <!-- 按下时仍保持透明背景 -->
     <Style Selector="Button.control-button:pressed /template/ Border#PART_Border">
         <Setter Property="Background" Value="Transparent"/>
     </Style>
-    
+
     <!-- 进度条样式 -->
     <Style Selector="ProgressBar.wordProgress">
         <Setter Property="Height" Value="8"/>
@@ -454,20 +516,20 @@
         <Setter Property="CornerRadius" Value="4"/>
         <Setter Property="Transitions">
             <Transitions>
-                <DoubleTransition Property="Value" 
-                                 Duration="0:0:0.8" 
+                <DoubleTransition Property="Value"
+                                 Duration="0:0:0.8"
                                  Easing="CubicEaseOut"/>
             </Transitions>
         </Setter>
     </Style>
-    
+
     <!-- 页码样式 -->
     <Style Selector="TextBlock.pageNumber">
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="Foreground" Value="#666666"/>
         <Setter Property="HorizontalAlignment" Value="Right"/>
     </Style>
-    
+
     <!-- Sheet按钮样式 - 保持和原来Border完全一致的外观 -->
     <Style Selector="Button.sheet-button">
         <Setter Property="Background" Value="#f8f9fa"/>
@@ -495,20 +557,20 @@
             </ControlTemplate>
         </Setter>
     </Style>
-    
+
     <!-- 悬停时保持原有背景色 -->
     <Style Selector="Button.sheet-button:pointerover /template/ Border#PART_Border">
         <Setter Property="Background" Value="#f8f9fa"/>
     </Style>
-    
+
     <!-- 按下时保持原有背景色 -->
     <Style Selector="Button.sheet-button:pressed /template/ Border#PART_Border">
         <Setter Property="Background" Value="#f8f9fa"/>
     </Style>
 
-    
-    
-    
+
+
+
     <!--     ~1~ 确定按钮在下划线文本框也可以实现不失焦，和隧道实现是两种不同的方法 @1@ -->
     <!-- <Style Selector="TextBox.underlineTextBox"> -->
     <!--     <Setter Property="Background" Value="Transparent"/> -->
